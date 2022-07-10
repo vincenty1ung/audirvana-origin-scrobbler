@@ -42,6 +42,6 @@ Install as service:
 </plist>
 ````
 
-3. Replace in the file YOUR_USER and the environment variables (Python instalation, etc) with the details of your system.
+3. Replace in the file YOUR_USER and the environment variables (Python version instalation, etc) with the details of your system.
 
 4. Alternatively use some app like LaunchControl https://www.soma-zone.com/LaunchControl/ to create the job.
