@@ -28,7 +28,7 @@ export PREVIOUS_TRACK_INFO=""
 export SCROBBLE_MESSAGE="Nothing to scrobble."
 export SLEEP_TIME="$DEFAULT_SLEEP_TIME"
 export TERM=xterm-256color
-export THRESHOLD=75
+export THRESHOLD=50
 export TIMESTAMP
 export TRACK_DURATION=""
 export TRACK_HAS_BEEN_SCROBBLED=false
