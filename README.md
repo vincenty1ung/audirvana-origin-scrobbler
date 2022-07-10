@@ -1,4 +1,4 @@
-# audirvana-scrobbler
+# audirvana-origin-scrobbler
 
 Scrobbles **Audirvana** playing tracks to **Last.fm**. Uses *zsh*, *AppleScript* and *Python 3* ([scrobbler](https://github.com/hauzer/scrobbler/)).
 
