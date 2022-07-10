@@ -1,12 +1,13 @@
 #!/bin/zsh
 
-##   Audirvana Scrobbler
-##   Ver: 1.0.1
+##   Audirvana Origin Scrobbler
+##   Ver: 1.0.2
 ##
-##   Scrobble Audirvana tracks to last.fm
+##   Forked of https://github.com/sprtm/audirvana-scrobbler
+##   Scrobble Audirvana Origin tracks to last.fm
 ##   Req: python3 + scrobblerh (pip install)
 ##
-##   2019-11-10
+##   2022-10-07
 
 
 # set properties
@@ -19,7 +20,7 @@ export CURRENT_ARTIST=""
 export CURRENT_PLAYER_STATE
 export CURRENT_POSITION=""
 export CURRENT_TRACK=""
-export LASTFM_USER=""
+export LASTFM_USER="YOUR_LASTFM_USER"
 export NOW_PLAYING_TRACK_DATA=""
 export OK_TO_SCROBBLE=false
 export PLAYED_ENOUGH=240
@@ -31,7 +32,7 @@ export THRESHOLD=75
 export TIMESTAMP
 export TRACK_DURATION=""
 export TRACK_HAS_BEEN_SCROBBLED=false
-export VERSION="1.0.1"
+export VERSION="1.0.2"
 
 
 # functions
@@ -39,7 +40,7 @@ function IS_AUDIRVANA_RUNNING {
 	AUDIRVANA_RUNNING_STATE=$(osascript <<-APPLESCRIPT
 		tell application "System Events"
 			set listApplicationProcessNames to name of every application process
-			if listApplicationProcessNames contains "Audirvana" then
+			if listApplicationProcessNames contains "Audirvana Origin" then
 				set AUDIRVANA_RUNNING_STATE to "yes"
 			else
 				set AUDIRVANA_RUNNING_STATE to "no"
@@ -50,19 +51,18 @@ function IS_AUDIRVANA_RUNNING {
 }
 
 function CHECK_AUDIRVANA_STATE {
-	CURRENT_PLAYER_STATE=$(osascript -e 'tell application "Audirvana" to get player state')
+	CURRENT_PLAYER_STATE=$(osascript -e 'tell application "Audirvana Origin" to get player state')
 }
 
 function GET_NOW_PLAYING_DATA {
 	NOW_PLAYING_TRACK_DATA=$(osascript <<-APPLESCRIPT
-	tell application "Audirvana"
+	tell application "Audirvana Origin"
 		set playingTrack to playing track title
 		set playingAlbum to playing track album
 		set playingArtist to playing track artist
 		set playingDuration to playing track duration
 		set playingPosition to player position
 	end tell
-
 	set myList to {playingTrack, playingAlbum, playingArtist, playingDuration, playingPosition}
 	set myString to "" as text
 	repeat with myItem in myList
@@ -88,7 +88,7 @@ function TEST_IF_TRACK_IS_ABOVE_THRESHOLD {
 
 function ECHO_FUNCTION {
 	echo -n "\e[0J" # clear everything after the cursor
-	echo "\r\e[0K  Audirvana....: $1\n  Last.fm......: $SCROBBLE_MESSAGE"
+	echo "\r[0K  Audirvana Origin: $1\n  Last.fm: $SCROBBLE_MESSAGE"
 	tput cup 4
 }
 
@@ -118,7 +118,7 @@ function SCROBBLE {
 # initiate script
 echo "\e[?25l" # hide cursor
 clear
-printf "\n  Audirvana Scrobbler Script %s * Running...\n  =============================================\n\n" "$VERSION"
+printf "\n  Audirvana Origin Scrobbler Script %s * Running...\n  =============================================\n\n" "$VERSION"
 
 while sleep $SLEEP_TIME; do
 	if (( AUDIRVANA_IDLE_TIME >= AUDIRVANA_IDLE_THRESHOLD )); then
