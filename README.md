@@ -19,7 +19,8 @@ Install as service:
 
 2. Create a job in /library/LaunchAgents/ with this variables:
 
-````<?xml version="1.0" encoding="UTF-8"?>
+````
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -38,7 +39,8 @@ Install as service:
 	<key>RunAtLoad</key>
 	<true/>
 </dict>
-</plist>````
+</plist>
+````
 
 3. Replace in the file YOUR_USER and the environment variables (Python instalation, etc) with the details of your system.
 
