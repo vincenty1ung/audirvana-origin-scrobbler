@@ -1,6 +1,6 @@
 # audirvana-origin-scrobbler
 
-Scrobbles **Audirvana** playing tracks to **Last.fm**. Uses *zsh*, *AppleScript* and *Python 3* ([scrobbler](https://github.com/hauzer/scrobbler/)).
+Scrobbles **Audirvana Origin** playing tracks to **Last.fm**. Uses *zsh*, *AppleScript* and *Python 3* ([scrobbler](https://github.com/hauzer/scrobbler/)).
 
 Loops every 3 seconds (the ````DEFAULT_SLEEP_TIME```` variable). The loop time increases to 20 seconds (the ````LONG_SLEEP_TIME```` variable) if Audirvana has been idle for 5 minutes (the ````AUDIRVANA_IDLE_THRESHOLD```` variable).
 
