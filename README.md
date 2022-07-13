@@ -29,6 +29,8 @@ Install as service:
 		<key>PATH</key>
 		<string>/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/YOUR_USER/Library/Python/3.10/bin:/Library/Apple/usr/bin</string>
 	</dict>
+	<key>KeepAlive</key>
+	<true/>
 	<key>Label</key>
 	<string>audirvana-scrobbler.job</string>
 	<key>ProgramArguments</key>
