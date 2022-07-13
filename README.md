@@ -17,7 +17,7 @@ Install as service:
 
 1. Set the script executable
 
-2. Create a job in /library/LaunchAgents/ with this variables:
+2. Create a job ````audirvana-origin-scrobbler.job.plist```` in /library/LaunchAgents/ with this variables:
 
 ````
 <?xml version="1.0" encoding="UTF-8"?>
