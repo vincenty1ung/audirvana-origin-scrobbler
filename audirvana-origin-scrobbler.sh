@@ -12,6 +12,7 @@
 
 # set properties
 export DEFAULT_SLEEP_TIME=3
+export LONG_SLEEP_TIME=60
 export AUDIRVANA_IDLE_THRESHOLD=$(( 300 / DEFAULT_SLEEP_TIME ))
 export AUDIRVANA_IDLE_TIME=0
 export AUDIRVANA_RUNNING_STATE
@@ -20,7 +21,7 @@ export CURRENT_ARTIST=""
 export CURRENT_PLAYER_STATE
 export CURRENT_POSITION=""
 export CURRENT_TRACK=""
-export LASTFM_USER="YOUR_LASTFM_USER"
+export LASTFM_USER="vincentch1n"
 export NOW_PLAYING_TRACK_DATA=""
 export OK_TO_SCROBBLE=false
 export PLAYED_ENOUGH=240
@@ -87,8 +88,8 @@ function TEST_IF_TRACK_IS_ABOVE_THRESHOLD {
 }
 
 function ECHO_FUNCTION {
-	echo -n "\e[0J" # clear everything after the cursor
-	echo "\r[0K  Audirvana Origin: $1\n  Last.fm: $SCROBBLE_MESSAGE"
+	print -n "\e[0J"   # clear everything after the cursor
+	print "\r[0K  Audirvana Origin: $1\n  Last.fm: $SCROBBLE_MESSAGE" >> ./log/audirvana-origin-scrobbler.log
 	tput cup 4
 }
 
@@ -116,11 +117,11 @@ function SCROBBLE {
 
 
 # initiate script
-echo "\e[?25l" # hide cursor
+print "\e[?25l"  # hide cursor
 clear
-printf "\n  Audirvana Origin Scrobbler Script %s * Running...\n  =============================================\n\n" "$VERSION"
+print "\n  Audirvana Origin Scrobbler Script $VERSION * Running...\n  =============================================\n"  >> ./log/audirvana-origin-scrobbler.log
 
-while sleep $SLEEP_TIME; do
+while true; do
 	if (( AUDIRVANA_IDLE_TIME >= AUDIRVANA_IDLE_THRESHOLD )); then
 		SLEEP_TIME="$LONG_SLEEP_TIME"
 	fi
@@ -142,4 +143,6 @@ while sleep $SLEEP_TIME; do
 			AUDIRVANA_IDLE_TIME=$(( AUDIRVANA_IDLE_TIME + 1))
 		fi
 	fi
+	print "休眠开始时长：$SLEEP_TIME，空闲时间：$AUDIRVANA_IDLE_TIME,空闲阈值：$AUDIRVANA_IDLE_THRESHOLD，长：$LONG_SLEEP_TIME" >> ./log/audirvana-origin-scrobbler.log
+	sleep "$SLEEP_TIME"
 done
