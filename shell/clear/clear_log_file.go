@@ -28,9 +28,6 @@ func clearFile(filePath string) error {
 		return err
 	}
 	now := time.Now()
-	/*buf := new(bytes.Buffer)
-	buf.WriteString(fmt.Sprintf("重置时间:%s", now.String()))
-	iow := bufio.NewWriter(buf)*/
 
 	n, err := f.WriteString(fmt.Sprintf("重置时间:%s", now.String()))
 	if err != nil {

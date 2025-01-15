@@ -1,5 +1,5 @@
 # audirvana-origin-scrobbler
-
+## V1
 Scrobbles **Audirvana Origin** playing tracks to **Last.fm**. Uses *zsh*, *AppleScript* and *Python 3* ([scrobbler](https://github.com/hauzer/scrobbler/)).
 
 Loops every 3 seconds (the ````DEFAULT_SLEEP_TIME```` variable). The loop time increases to 20 seconds (the ````LONG_SLEEP_TIME```` variable) if Audirvana has been idle for 5 minutes (the ````AUDIRVANA_IDLE_THRESHOLD```` variable).
@@ -46,3 +46,18 @@ Install as service:
 3. Replace YOUR_USER and the environment variables (Python version instalation, etc) with the details of your system.
 
 4. Alternatively use some app like LaunchControl https://www.soma-zone.com/LaunchControl/ to create the job.
+
+## v2
+### Shell
+1. sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh
+2. sh shell/script/start_audirvana-origin-scrobblers.sh
+3. sh shell/script/[stop_audirvana-origin-scrobblers.sh](shell/script/stop_audirvana-origin-scrobblers.sh)
+### Go
+1. edit [config.yaml](config/config.yaml) your config
+2. go build
+2. ./audirvana-origin-scrobbler
+3. tail -f logs/2025-01-15.log
+
+## todo
+* 扫描audirvana db，加入mysql记录，综合分析。
+* 支持audirvana 列表自动同步last.fm

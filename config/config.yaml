@@ -1,0 +1,13 @@
+lastfm:
+  applicationName: "audirvana-scrobbler"
+  apiKey: ""
+  sharedSecret: ""
+  registeredTo: ""
+  userLoginToken:
+  userUsername: ""
+  userPassword: ""
+
+log:
+  path: ./logs
+  level: info
+

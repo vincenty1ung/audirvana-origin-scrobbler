@@ -10,16 +10,15 @@
 	<key>KeepAlive</key>
 	<true/>
 	<key>Label</key>
-	<string>com.vincent.audirvana-scrobbler-clearlogfile.job</string>
+	<string>com.vincent.audirvana-scrobbler.job</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/clear_bin</string>
+		<string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/shell/audirvana-origin-scrobbler.sh</string>
 	</array>
-
     <key>StandardErrorPath</key>
-    <string>./log/audirvana-origin-scrobbler.log</string>
+    <string>./logs/audirvana-origin-scrobbler.log</string>
     <key>StandardOutPath</key>
-    <string>./log/audirvana-origin-scrobbler.log</string>
+    <string>./logs/audirvana-origin-scrobbler.log</string>
     <key>WorkingDirectory</key>
     <string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/</string>
 	<key>RunAtLoad</key>

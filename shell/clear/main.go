@@ -8,7 +8,7 @@ import (
 func main() {
 	for {
 		fmt.Println("执行清理策略")
-		err := clearFile("/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/log/audirvana-origin-scrobbler.log")
+		err := clearFile("/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/logs/audirvana-origin-scrobbler.log")
 		if err != nil {
 			panic(err)
 		}
