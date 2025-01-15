@@ -95,7 +95,7 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 		core,
 		zap.Development(),
 		zap.AddCaller(),
-		zap.AddCallerSkip(1),
+		zap.AddCallerSkip(0),
 	)
 
 	// 示例日志记录
