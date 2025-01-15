@@ -12,6 +12,8 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/sys/unix"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var dayRotationCounter int32 = 0 // 记录每天日志文件计数值
@@ -31,6 +33,22 @@ func openDailyLogFile(dir string) (zapcore.WriteSyncer, error) {
 	}
 	fsyncer = zapcore.AddSync(f)
 	return fsyncer, nil
+}
+
+func createLumberJackLogger(filename string) zapcore.WriteSyncer {
+	lumberJackLogger := &lumberjack.Logger{
+		Filename:   filename, // 文件位置
+		MaxSize:    1,        // 进行切割之前,日志文件的最大大小(MB为单位)
+		MaxAge:     7,        // 保留旧文件的最大天数
+		MaxBackups: 10,       // 保留旧文件的最大个数
+		Compress:   true,     // 是否压缩/归档旧文件
+		LocalTime:  true,
+	}
+	// AddSync 将 io.Writer 转换为 WriteSyncer。
+	// 它试图变得智能：如果 io.Writer 的具体类型实现了 WriteSyncer，我们将使用现有的 Sync 方法。
+	// 如果没有，我们将添加一个无操作同步。
+
+	return zapcore.AddSync(lumberJackLogger)
 }
 
 func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
@@ -53,38 +71,18 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 		atom.SetLevel(zap.InfoLevel)
 
 	}
-	fsyncer, err := openDailyLogFile(logPath)
+	/*fsyncer, err := openDailyLogFile(logPath)
 	if err != nil {
 		fmt.Println("Failed to set up logger due to error:", err.Error())
 		os.Exit(1)
-	}
-
-	// outSyncer := zapcore.AddSync(os.Stdout)
-	fileAndStdoutSyncer := zapcore.NewMultiWriteSyncer(fsyncer)
+	}*/
+	fileAndStdoutSyncer := zapcore.NewMultiWriteSyncer(
+		createLumberJackLogger(logPath+"/go_audirvana-origin-scrobbler.log"), zapcore.AddSync(os.Stdout),
+	)
 
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.DateTime)
 
-	/*// 创建生产环境配置
-	config := zap.Config{
-		Level:       atom,
-		Development: false,
-		Sampling: &zap.SamplingConfig{
-			Initial:    100,
-			Thereafter: 100,
-		},
-		Encoding:         "json",
-		EncoderConfig:    encoderConfig,
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-		WriteSyncer:      multiWriteSyncer,
-	}
-
-	// 实例化 Logger
-	logger, err := config.Build()
-	if err != nil {
-		return nil, fmt.Errorf("failed to build logger: %w", err)
-	}*/
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderConfig),
 		fileAndStdoutSyncer,
@@ -93,7 +91,7 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 
 	Logger = zap.New(
 		core,
-		zap.Development(),
+		// zap.Development(),
 		zap.AddCaller(),
 		zap.AddCallerSkip(0),
 	)
@@ -101,7 +99,11 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 	// 示例日志记录
 	defer func() {
 		err = Logger.Sync()
-		if err != nil && !errors.Is(err, syscall.ENOTTY) {
+		if err != nil && (!errors.Is(err, unix.ENOTTY) || !errors.Is(err, syscall.ENOTTY) || !errors.Is(
+			err, unix.EBADF,
+		)) {
+			// golang.org/x/sys/unix.ENOTTY (25)
+			// golang.org/x/sys/unix.EBADF (9)
 			fmt.Println(err)
 		} else if err != nil {
 			panic(err)
