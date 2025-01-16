@@ -1,4 +1,31 @@
 # audirvana-origin-scrobbler
+
+## v2
+### Shell V1
+```shell
+ sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh
+ sh shell/script/start_audirvana-origin-scrobblers.sh
+ sh shell/script/[stop_audirvana-origin-scrobblers.sh](shell/script/stop_audirvana-origin-scrobblers.sh)
+```
+### Go Build
+```shell
+# your config
+vim config/config.yaml 
+go build
+./audirvana-origin-scrobbler
+tail -f logs/go_audirvana-origin-scrobbler.log
+```
+### Launch
+```shell
+sh shell/script/build_audirvana-origin-scrobblers_launchctl_v2.sh
+sh shell/script/start_audirvana-origin-scrobblersv2.sh
+sh shell/script/stop_audirvana-origin-scrobblersv2.sh 
+```
+
+## todo
+* 扫描audirvana db，加入mysql记录，综合分析。
+* 支持audirvana 列表自动同步last.fm
+
 ## V1
 Scrobbles **Audirvana Origin** playing tracks to **Last.fm**. Uses *zsh*, *AppleScript* and *Python 3* ([scrobbler](https://github.com/hauzer/scrobbler/)).
 
@@ -46,18 +73,3 @@ Install as service:
 3. Replace YOUR_USER and the environment variables (Python version instalation, etc) with the details of your system.
 
 4. Alternatively use some app like LaunchControl https://www.soma-zone.com/LaunchControl/ to create the job.
-
-## v2
-### Shell
-1. sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh
-2. sh shell/script/start_audirvana-origin-scrobblers.sh
-3. sh shell/script/[stop_audirvana-origin-scrobblers.sh](shell/script/stop_audirvana-origin-scrobblers.sh)
-### Go
-1. edit [config.yaml](config/config.yaml) your config
-2. go build
-2. ./audirvana-origin-scrobbler
-3. tail -f logs/2025-01-15.log
-
-## todo
-* 扫描audirvana db，加入mysql记录，综合分析。
-* 支持audirvana 列表自动同步last.fm
