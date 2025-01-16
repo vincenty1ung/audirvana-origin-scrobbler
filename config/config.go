@@ -26,9 +26,8 @@ type LogConfig struct {
 	Level string `yaml:"level"`
 }
 
-func init() {
-	// todo 后期再做维护
-	viper.SetConfigFile("/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/config/config.yaml")
+func InitConfig(filePath string) {
+	viper.SetConfigFile(filePath)
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
