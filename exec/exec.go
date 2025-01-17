@@ -41,6 +41,51 @@ func ExiftoolHandle(file string) (*ExiftoolInfo, error) {
 }
 
 // GetTrackNumber GetTrackNumber
+func (receiver ExiftoolInfo) GetArtists() string {
+	key1, key2 := "Artists", "artists"
+	var val any
+	val, ok := receiver[key1]
+	if ok {
+		return cast.ToString(val)
+	}
+	val, ok = receiver[key2]
+	if ok {
+		return cast.ToString(val)
+	}
+	return ""
+}
+func (receiver ExiftoolInfo) GetArtist() string {
+	key1, key2 := "Artist", "artist"
+	var val any
+	val, ok := receiver[key1]
+	if ok {
+		return cast.ToString(val)
+	}
+	val, ok = receiver[key2]
+	if ok {
+		return cast.ToString(val)
+	}
+	return ""
+}
+func (receiver ExiftoolInfo) GetAlbumartist() string {
+	key1, key2, key3 := "Albumartist", "albumArtist", "AlbumArtist"
+	var val any
+	val, ok := receiver[key1]
+	if ok {
+		return cast.ToString(val)
+	}
+	val, ok = receiver[key2]
+	if ok {
+		return cast.ToString(val)
+	}
+	val, ok = receiver[key3]
+	if ok {
+		return cast.ToString(val)
+	}
+	return ""
+}
+
+// GetTrackNumber GetTrackNumber
 func (receiver ExiftoolInfo) GetTrackNumber() int64 {
 	key1, key2, key3 := "TrackNumber", "Tracknumber", "tracknumber"
 	//  "TrackNumber": "1 of 12",
@@ -130,6 +175,6 @@ func isValidPath(path string) (bool, string, error) {
 	}
 	// 根据fileInfo.IsDir()判断是文件还是目录
 	isDirectory := fileInfo.IsDir()
-	alog.Logger.Info(fmt.Sprintf("The path [%s] exists and [%v] a directory", resolvedPath, isDirectory))
+	alog.Logger.Info(fmt.Sprintf("checkValidPath:The path [%s] exists and [%v] a directory", resolvedPath, isDirectory))
 	return true, resolvedPath, nil
 }

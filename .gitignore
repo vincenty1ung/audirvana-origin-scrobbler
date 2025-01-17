@@ -1,0 +1,6 @@
+/audirvana/logs/
+/logs/go_audirvana-origin-scrobbler.log
+/exec/logs/
+/shell/bin/audirvana-origin-scrobbler
+/config/config_bak.yaml
+/scrobbler/logs/
