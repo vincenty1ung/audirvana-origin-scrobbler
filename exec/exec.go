@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/go-audio/wav"
 	"github.com/spf13/cast"
 	"go.uber.org/zap"
 
@@ -16,11 +17,30 @@ import (
 )
 
 type ExiftoolInfo map[string]any
+type WavInfo struct {
+	wav.Metadata
+}
 
-func ExiftoolHandle(file string) (*ExiftoolInfo, error) {
+type MRMediaNowPlaying struct {
+	Name      string `json:"name"`
+	Artist    string `json:"artist"`
+	Album     string `json:"album"`
+	IsPlaying bool   `json:"isPlaying"`
+}
+
+type MataDataHandle interface {
+	GetTitle() string
+	GetArtists() string
+	GetArtist() string
+	GetAlbumartist() string
+	GetTrackNumber() int64
+	GetMusicBrainzTrackId() string
+}
+
+func BuildExiftoolHandle(file string) (MataDataHandle, error) {
 	infos := make([]*ExiftoolInfo, 0)
 	res := new(ExiftoolInfo)
-	ok, file, err := isValidPath(file)
+	ok, file, err := IsValidPath(file)
 	if err != nil {
 		return nil, err
 	}
@@ -38,6 +58,44 @@ func ExiftoolHandle(file string) (*ExiftoolInfo, error) {
 		res = infos[0]
 	}
 	return res, nil
+}
+
+func BuildWavInfoHandle(file string) (MataDataHandle, error) {
+	wavInfo := new(WavInfo)
+	if ok, file, err := IsValidPath(file); err != nil {
+		return nil, err
+	} else if ok {
+		in, err := os.Open(file)
+		defer func(in *os.File) {
+			err := in.Close()
+			if err != nil {
+				alog.Logger.Error("Failed to close file", zap.String("file", file), zap.Error(err))
+			}
+		}(in)
+		if err != nil {
+			return nil, err
+		}
+		if mwav := wav.NewDecoder(in); mwav.IsValidFile() {
+			mwav.ReadMetadata()
+			wavInfo.Metadata = *mwav.Metadata
+		}
+	}
+	return wavInfo, nil
+}
+
+// GetTrackNumber GetTrackNumber
+func (receiver ExiftoolInfo) GetTitle() string {
+	key1, key2 := "Artists", "artists"
+	var val any
+	val, ok := receiver[key1]
+	if ok {
+		return cast.ToString(val)
+	}
+	val, ok = receiver[key2]
+	if ok {
+		return cast.ToString(val)
+	}
+	return ""
 }
 
 // GetTrackNumber GetTrackNumber
@@ -106,19 +164,6 @@ func (receiver ExiftoolInfo) GetTrackNumber() int64 {
 	return 0
 }
 
-func castToInt64(val any) int64 {
-	switch v := val.(type) {
-	case string:
-		split := strings.Split(v, "of")
-		if len(split) > 0 {
-			return cast.ToInt64(strings.TrimSpace(split[0]))
-		}
-	case int, int16, int32, int64, float32, float64, uint, uint8, uint16, uint32, uint64:
-		return cast.ToInt64(v)
-	}
-	return 0
-}
-
 // GetMusicBrainzTrackID GetMusicBrainzTrackID
 func (receiver ExiftoolInfo) GetMusicBrainzTrackId() string {
 	key1, key2 := "MusicbrainzTrackid", "MusicBrainzTrackId"
@@ -134,6 +179,73 @@ func (receiver ExiftoolInfo) GetMusicBrainzTrackId() string {
 	return ""
 }
 
+// GetTrackNumber GetTrackNumber
+func (receiver *WavInfo) GetTitle() string {
+	return receiver.Product
+}
+
+// GetTrackNumber GetTrackNumber
+func (receiver *WavInfo) GetArtists() string {
+	return receiver.Artist
+}
+func (receiver *WavInfo) GetArtist() string {
+	return receiver.Artist
+}
+func (receiver *WavInfo) GetAlbumartist() string {
+	return receiver.Artist
+}
+
+// GetTrackNumber GetTrackNumber
+func (receiver *WavInfo) GetTrackNumber() int64 {
+	return castToInt64(receiver.TrackNbr)
+}
+
+// GetMusicBrainzTrackID GetMusicBrainzTrackID
+func (receiver *WavInfo) GetMusicBrainzTrackId() string {
+	return ""
+}
+
+func GetMRMediaNowPlaying() (*MRMediaNowPlaying, error) {
+	output, err := runCommand("nowplaying-cli", "get", "title", "album", "artist")
+	if err != nil {
+		return nil, err
+	}
+	var np MRMediaNowPlaying
+	if err := json.Unmarshal([]byte(output), &np); err != nil {
+		return nil, err
+	}
+	return &np, nil
+}
+
+func castToInt64(val any) int64 {
+	switch v := val.(type) {
+	case string:
+		var toInt64 int64 = 0
+		if strings.Contains(v, "/") {
+			tmp := strings.Split(v, "/")
+			if len(tmp) > 0 {
+				toInt64 = cast.ToInt64(strings.TrimSpace(tmp[0]))
+			}
+		} else if strings.Contains(v, "-") {
+			tmp := strings.Split(v, "-")
+			if len(tmp) > 0 {
+				toInt64 = cast.ToInt64(strings.TrimSpace(tmp[0]))
+			}
+		} else if strings.Contains(v, "of") {
+			tmp := strings.Split(v, "of")
+			if len(tmp) > 0 {
+				toInt64 = cast.ToInt64(strings.TrimSpace(tmp[0]))
+			}
+		} else {
+			toInt64 = cast.ToInt64(strings.TrimSpace(v))
+		}
+		return toInt64
+	case int, int16, int32, int64, float32, float64, uint, uint8, uint16, uint32, uint64:
+		return cast.ToInt64(v)
+	}
+	return 0
+}
+
 func runCommand(command string, args ...string) (string, error) {
 	cmd := exec.Command(command, args...)
 	output, err := cmd.CombinedOutput()
@@ -143,7 +255,7 @@ func runCommand(command string, args ...string) (string, error) {
 	return string(output), nil
 }
 
-func isValidPath(path string) (bool, string, error) {
+func IsValidPath(path string) (bool, string, error) {
 	// 确保路径不是空字符串
 	if path == "" {
 		return false, "", fmt.Errorf("empty or undefined path")
@@ -177,4 +289,7 @@ func isValidPath(path string) (bool, string, error) {
 	isDirectory := fileInfo.IsDir()
 	alog.Logger.Info(fmt.Sprintf("checkValidPath:The path [%s] exists and [%v] a directory", resolvedPath, isDirectory))
 	return true, resolvedPath, nil
+}
+func GetFilePathExt(path string) string {
+	return filepath.Ext(path)
 }

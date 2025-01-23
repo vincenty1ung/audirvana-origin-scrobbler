@@ -83,13 +83,13 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 						Timestamp:   now.UTC().Unix(),
 					}
 					// 说明在听歌存在有效数据的
-					if exiftoolInfo := FindExiftoolInfoCache(audirvanaTrackInfo.Url); exiftoolInfo != nil {
-						pushTrackScrobbleReq.TrackNumber = exiftoolInfo.GetTrackNumber()
-						pushTrackScrobbleReq.MusicBrainzTrackID = exiftoolInfo.GetMusicBrainzTrackId()
-						if artist := exiftoolInfo.GetArtist(); len(artist) != 0 {
+					if mataDataHandleCache := FindMataDataHandleCache(audirvanaTrackInfo.Url); mataDataHandleCache != nil {
+						pushTrackScrobbleReq.TrackNumber = mataDataHandleCache.GetTrackNumber()
+						pushTrackScrobbleReq.MusicBrainzTrackID = mataDataHandleCache.GetMusicBrainzTrackId()
+						if artist := mataDataHandleCache.GetArtist(); len(artist) != 0 {
 							pushTrackScrobbleReq.Artist = artist
 						}
-						if albumartist := exiftoolInfo.GetAlbumartist(); len(albumartist) != 0 {
+						if albumartist := mataDataHandleCache.GetAlbumartist(); len(albumartist) != 0 {
 							pushTrackScrobbleReq.AlbumArtist = albumartist
 						}
 					}
@@ -114,13 +114,13 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 						Duration:    audirvanaTrackInfo.Duration,
 					}
 					// 说明在听歌存在有效数据的
-					if exiftoolInfo := FindExiftoolInfoCache(audirvanaTrackInfo.Url); exiftoolInfo != nil {
-						playingReq.TrackNumber = exiftoolInfo.GetTrackNumber()
-						playingReq.MusicBrainzTrackID = exiftoolInfo.GetMusicBrainzTrackId()
-						if artist := exiftoolInfo.GetArtist(); len(artist) != 0 {
+					if mataDataHandleCache := FindMataDataHandleCache(audirvanaTrackInfo.Url); mataDataHandleCache != nil {
+						playingReq.TrackNumber = mataDataHandleCache.GetTrackNumber()
+						playingReq.MusicBrainzTrackID = mataDataHandleCache.GetMusicBrainzTrackId()
+						if artist := mataDataHandleCache.GetArtist(); len(artist) != 0 {
 							playingReq.Artist = artist
 						}
-						if albumartist := exiftoolInfo.GetAlbumartist(); len(albumartist) != 0 {
+						if albumartist := mataDataHandleCache.GetAlbumartist(); len(albumartist) != 0 {
 							playingReq.AlbumArtist = albumartist
 						}
 					}
@@ -142,25 +142,39 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 
 }
 
-var lruCache = lru.Constructor[string](100)
+var lruCache = lru.Constructor[string](200)
 
-func FindExiftoolInfoCache(key string) *exec.ExiftoolInfo {
+func FindMataDataHandleCache(key string) exec.MataDataHandle {
 	var (
-		exiftoolInfo *exec.ExiftoolInfo
-		err          error
+		mataDataHandle exec.MataDataHandle
+		err            error
 	)
 
-	if cacheExiftoolInfo := lruCache.Get(key); cacheExiftoolInfo != nil {
-		exiftoolInfo = cacheExiftoolInfo.(*exec.ExiftoolInfo)
+	if exiftoolInfo := lruCache.Get(key); exiftoolInfo != nil {
+		mataDataHandle = exiftoolInfo.(exec.MataDataHandle)
 	} else {
-		exiftoolInfo, err = exec.ExiftoolHandle(key)
-		if err != nil {
-			alog.Logger.Warn("exec ExiftoolHandle", zap.Error(err))
-			return exiftoolInfo
-		}
-		if exiftoolInfo != nil {
-			lruCache.Put(key, exiftoolInfo)
+
+		if ok, path, _ := exec.IsValidPath(key); ok {
+			if exec.GetFilePathExt(path) == common.FileExtWav1 || exec.GetFilePathExt(path) == common.FileExtWav2 {
+				mataDataHandle, err = exec.BuildWavInfoHandle(key)
+				if err != nil {
+					alog.Logger.Warn("exec BuildExiftoolHandle", zap.Error(err))
+					return mataDataHandle
+				}
+				if mataDataHandle != nil {
+					lruCache.Put(key, mataDataHandle)
+				}
+			} else {
+				mataDataHandle, err = exec.BuildExiftoolHandle(key)
+				if err != nil {
+					alog.Logger.Warn("exec BuildExiftoolHandle", zap.Error(err))
+					return mataDataHandle
+				}
+				if mataDataHandle != nil {
+					lruCache.Put(key, mataDataHandle)
+				}
+			}
 		}
 	}
-	return exiftoolInfo
+	return mataDataHandle
 }

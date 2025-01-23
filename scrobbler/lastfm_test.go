@@ -11,6 +11,7 @@ import (
 
 func init() {
 	c := make(chan struct{})
+	config.InitConfig("../config/config.yaml")
 	_ = log.LogInit(config.ConfigObj.Log.Path, config.ConfigObj.Log.Level, c)
 	InitLastfmApi(
 		config.ConfigObj.Lastfm.ApiKey, config.ConfigObj.Lastfm.SharedSecret, "", true,
