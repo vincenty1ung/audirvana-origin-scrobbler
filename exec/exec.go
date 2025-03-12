@@ -16,37 +16,58 @@ import (
 	alog "github.com/audirvana-origin-scrobbler/log"
 )
 
-type ExiftoolInfo map[string]any
-type WavInfo struct {
-	wav.Metadata
-}
+const (
+	MRMediaNowPlayingGet              = "get"
+	MRMediaNowPlayingAppRoon          = "com.roon.Roon"
+	MRMediaNowPlayingAppMusic         = "com.apple.Music"
+	MRMediaNowPlayingBundleIdentifier = "bundleIdentifier"
+	MRMediaNowPlayingIsPlaying        = "isPlaying"
+	MRMediaNowPlayingAlbum            = "album"
+	MRMediaNowPlayingTitle            = "title"
+	MRMediaNowPlayingArtist           = "artist"
+	MRMediaNowPlayingDuration         = "duration"
+	MRMediaNowPlayingElapsedTime      = "elapsedTime"
+	MRMediaNowPlayingTimestamp        = "timestamp"
+	MRMediaNowPlayingMediaType        = "mediaType"
+	MRMediaNowPlayingIsMusicApp       = "isMusicApp"
+	MRMediaNowPlayingUniqueIdentifier = "uniqueIdentifier"
+)
 
-type MRMediaNowPlaying struct {
-	Name      string `json:"name"`
-	Artist    string `json:"artist"`
-	Album     string `json:"album"`
-	IsPlaying bool   `json:"isPlaying"`
-}
+type (
+	MataDataHandle interface {
+		GetTitle() string
+		GetArtists() string
+		GetArtist() string
+		GetAlbumartist() string
+		GetTrackNumber() int64
+		GetMusicBrainzTrackId() string
+	}
 
-type MataDataHandle interface {
-	GetTitle() string
-	GetArtists() string
-	GetArtist() string
-	GetAlbumartist() string
-	GetTrackNumber() int64
-	GetMusicBrainzTrackId() string
-}
+	ExiftoolInfo map[string]any
+	WavInfo      struct {
+		wav.Metadata
+	}
+	MRMediaNowPlaying struct {
+		Title            string  `json:"title"`
+		Artist           string  `json:"artist"`
+		Album            string  `json:"album"`
+		IsPlaying        bool    `json:"isPlaying"`
+		Duration         float64 `json:"duration"`
+		ElapsedTime      float64 `json:"elapsed_time"`
+		BundleIdentifier string  `json:"bundleIdentifier"`
+	}
+)
 
 func BuildExiftoolHandle(file string) (MataDataHandle, error) {
 	infos := make([]*ExiftoolInfo, 0)
 	res := new(ExiftoolInfo)
-	ok, file, err := IsValidPath(file)
+	/*ok, file, err := IsValidPath(file)
 	if err != nil {
 		return nil, err
 	}
 	if !ok {
 		return nil, fmt.Errorf("invalid exiftool path: %s", file)
-	}
+	}*/
 	command, err := runCommand("exiftool", "-json", file)
 	if err != nil {
 	}
@@ -62,7 +83,7 @@ func BuildExiftoolHandle(file string) (MataDataHandle, error) {
 
 func BuildWavInfoHandle(file string) (MataDataHandle, error) {
 	wavInfo := new(WavInfo)
-	if ok, file, err := IsValidPath(file); err != nil {
+	/*if ok, file, err := IsValidPath(file); err != nil {
 		return nil, err
 	} else if ok {
 		in, err := os.Open(file)
@@ -79,6 +100,20 @@ func BuildWavInfoHandle(file string) (MataDataHandle, error) {
 			mwav.ReadMetadata()
 			wavInfo.Metadata = *mwav.Metadata
 		}
+	}*/
+	in, err := os.Open(file)
+	defer func(in *os.File) {
+		err := in.Close()
+		if err != nil {
+			alog.Logger.Error("Failed to close file", zap.String("file", file), zap.Error(err))
+		}
+	}(in)
+	if err != nil {
+		return nil, err
+	}
+	if mwav := wav.NewDecoder(in); mwav.IsValidFile() {
+		mwav.ReadMetadata()
+		wavInfo.Metadata = *mwav.Metadata
 	}
 	return wavInfo, nil
 }
@@ -206,13 +241,55 @@ func (receiver *WavInfo) GetMusicBrainzTrackId() string {
 }
 
 func GetMRMediaNowPlaying() (*MRMediaNowPlaying, error) {
-	output, err := runCommand("nowplaying-cli", "get", "title", "album", "artist")
+	// nowplaying-cli  get album title artist duration elapsedTime timestamp mediaType isMusicApp  uniqueIdentifier
+	args := []string{
+		MRMediaNowPlayingGet,
+		MRMediaNowPlayingAlbum,
+		MRMediaNowPlayingTitle,
+		MRMediaNowPlayingArtist,
+		MRMediaNowPlayingDuration,
+		MRMediaNowPlayingElapsedTime,
+		MRMediaNowPlayingTimestamp,
+		MRMediaNowPlayingMediaType,
+		MRMediaNowPlayingIsMusicApp,
+		MRMediaNowPlayingUniqueIdentifier,
+	}
+	curList := map[string]int{
+		MRMediaNowPlayingBundleIdentifier: 0,
+		MRMediaNowPlayingIsPlaying:        1,
+		MRMediaNowPlayingAlbum:            2,
+		MRMediaNowPlayingTitle:            3,
+		MRMediaNowPlayingArtist:           4,
+		MRMediaNowPlayingDuration:         5,
+		MRMediaNowPlayingElapsedTime:      6,
+		MRMediaNowPlayingTimestamp:        7,
+		MRMediaNowPlayingMediaType:        8,
+		MRMediaNowPlayingIsMusicApp:       9,
+		MRMediaNowPlayingUniqueIdentifier: 10,
+	}
+	output, err := runCommand(
+		"nowplaying-cli-mac", args...,
+	)
 	if err != nil {
 		return nil, err
 	}
+	MRMediaNowPlayingList := strings.Split(output, "\n")
 	var np MRMediaNowPlaying
-	if err := json.Unmarshal([]byte(output), &np); err != nil {
-		return nil, err
+	if len(MRMediaNowPlayingList) > 10 {
+		artists := cast.ToString(MRMediaNowPlayingList[curList[MRMediaNowPlayingArtist]])
+		artist := artists
+		if artistList := strings.Split(artists, ","); len(artistList) > 0 {
+			artist = artistList[0]
+		}
+		np = MRMediaNowPlaying{
+			Title:            cast.ToString(MRMediaNowPlayingList[curList[MRMediaNowPlayingTitle]]),
+			Artist:           artist,
+			Album:            cast.ToString(MRMediaNowPlayingList[curList[MRMediaNowPlayingAlbum]]),
+			IsPlaying:        cast.ToString(MRMediaNowPlayingList[curList[MRMediaNowPlayingIsPlaying]]) == "YES",
+			Duration:         cast.ToFloat64(MRMediaNowPlayingList[curList[MRMediaNowPlayingDuration]]),
+			ElapsedTime:      cast.ToFloat64(MRMediaNowPlayingList[curList[MRMediaNowPlayingElapsedTime]]),
+			BundleIdentifier: cast.ToString(MRMediaNowPlayingList[curList[MRMediaNowPlayingBundleIdentifier]]),
+		}
 	}
 	return &np, nil
 }

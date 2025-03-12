@@ -2,11 +2,9 @@ package scrobbler
 
 import (
 	"fmt"
-	"log"
 	"sync/atomic"
 	"time"
 
-	"github.com/vincenty1ung/yeung-go-study/lru"
 	"go.uber.org/zap"
 
 	"github.com/audirvana-origin-scrobbler/audirvana"
@@ -23,10 +21,12 @@ const (
 )
 
 var maped = make(map[string]bool)
+var maped2 = make(map[string]bool)
 var pushCount = atomic.Uint32{} // 多渠道上报
 var isLong bool
+var isLong2 bool
 
-func CheckPlayingTrack(stop <-chan struct{}) {
+func AudirvanaCheckPlayingTrack(stop <-chan struct{}) {
 	timer := time.NewTicker(time.Second * defaultSleep)
 	var (
 		now           time.Time
@@ -83,7 +83,7 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 						Timestamp:   now.UTC().Unix(),
 					}
 					// 说明在听歌存在有效数据的
-					if mataDataHandleCache := FindMataDataHandleCache(audirvanaTrackInfo.Url); mataDataHandleCache != nil {
+					if mataDataHandleCache := exec.FindMataDataHandleCache(audirvanaTrackInfo.Url); mataDataHandleCache != nil {
 						pushTrackScrobbleReq.TrackNumber = mataDataHandleCache.GetTrackNumber()
 						pushTrackScrobbleReq.MusicBrainzTrackID = mataDataHandleCache.GetMusicBrainzTrackId()
 						if artist := mataDataHandleCache.GetArtist(); len(artist) != 0 {
@@ -95,7 +95,8 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 					}
 					_, err := PushTrackScrobble(pushTrackScrobbleReq)
 					if err != nil {
-						log.Fatal(err)
+						alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+						continue
 					}
 					maped[currentTrack] = true
 					pushCount.Add(1)
@@ -114,7 +115,7 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 						Duration:    audirvanaTrackInfo.Duration,
 					}
 					// 说明在听歌存在有效数据的
-					if mataDataHandleCache := FindMataDataHandleCache(audirvanaTrackInfo.Url); mataDataHandleCache != nil {
+					if mataDataHandleCache := exec.FindMataDataHandleCache(audirvanaTrackInfo.Url); mataDataHandleCache != nil {
 						playingReq.TrackNumber = mataDataHandleCache.GetTrackNumber()
 						playingReq.MusicBrainzTrackID = mataDataHandleCache.GetMusicBrainzTrackId()
 						if artist := mataDataHandleCache.GetArtist(); len(artist) != 0 {
@@ -141,40 +142,102 @@ func CheckPlayingTrack(stop <-chan struct{}) {
 	}
 
 }
-
-var lruCache = lru.Constructor[string](200)
-
-func FindMataDataHandleCache(key string) exec.MataDataHandle {
+func RoonCheckPlayingTrack(stop <-chan struct{}) {
+	timer := time.NewTicker(time.Second * defaultSleep)
 	var (
-		mataDataHandle exec.MataDataHandle
-		err            error
+		now           time.Time
+		currentTrack  = ""
+		previousTrack = ""
+		tmpCount      = 0
 	)
-
-	if exiftoolInfo := lruCache.Get(key); exiftoolInfo != nil {
-		mataDataHandle = exiftoolInfo.(exec.MataDataHandle)
-	} else {
-
-		if ok, path, _ := exec.IsValidPath(key); ok {
-			if exec.GetFilePathExt(path) == common.FileExtWav1 || exec.GetFilePathExt(path) == common.FileExtWav2 {
-				mataDataHandle, err = exec.BuildWavInfoHandle(key)
-				if err != nil {
-					alog.Logger.Warn("exec BuildExiftoolHandle", zap.Error(err))
-					return mataDataHandle
-				}
-				if mataDataHandle != nil {
-					lruCache.Put(key, mataDataHandle)
-				}
-			} else {
-				mataDataHandle, err = exec.BuildExiftoolHandle(key)
-				if err != nil {
-					alog.Logger.Warn("exec BuildExiftoolHandle", zap.Error(err))
-					return mataDataHandle
-				}
-				if mataDataHandle != nil {
-					lruCache.Put(key, mataDataHandle)
+	for {
+		select {
+		case <-timer.C:
+			alog.Logger.Debug("Checking playing track..." + time.Now().String())
+			tmpCount++
+			if tmpCount > checkCount && !isLong2 { // 检查100次依旧没有播放检查轮训放大到60秒
+				timer.Reset(time.Second * longSleep)
+				isLong2 = true
+				alog.Logger.Info(
+					"检查100次依旧没有播放检查轮训放大到60秒", zap.Uint32("共计上传歌曲标记", pushCount.Load()),
+				)
+			}
+			if isLong2 {
+				alog.Logger.Info(
+					"60秒检查", zap.Uint32("共计上传歌曲标记", pushCount.Load()),
+				)
+			}
+			playing, err := exec.GetMRMediaNowPlaying()
+			if err != nil {
+				panic(err)
+			}
+			var roonTrackInfo *exec.MRMediaNowPlaying
+			if playing.BundleIdentifier == exec.MRMediaNowPlayingAppRoon {
+				roonTrackInfo = nil
+				if playing.IsPlaying {
+					if tmpCount > checkCount {
+						isLong2 = false
+						timer.Reset(time.Second * defaultSleep)
+					}
+					tmpCount = 0
+					roonTrackInfo = playing
 				}
 			}
+			if roonTrackInfo != nil {
+				tmpTrack := roonTrackInfo.Title //
+				currentTrack = tmpTrack
+				position := roonTrackInfo.ElapsedTime
+				duration := roonTrackInfo.Duration
+				if position/float64(duration) > percentScrobble && !maped2[currentTrack] {
+					// 标记听歌完成
+					pushTrackScrobbleReq := &PushTrackScrobbleReq{
+						Artist:      roonTrackInfo.Artist,
+						AlbumArtist: roonTrackInfo.Artist,
+						Track:       roonTrackInfo.Title,
+						Album:       roonTrackInfo.Album,
+						Duration:    int64(roonTrackInfo.Duration),
+						Timestamp:   now.UTC().Unix(),
+					}
+					// 说明在听歌存在有效数据的
+					_, err := PushTrackScrobble(pushTrackScrobbleReq)
+					if err != nil {
+						alog.Logger.Warn("RoonCheckPlayingTrack TrackUpdateNowPlaying", zap.Error(err))
+						continue
+					}
+					maped2[currentTrack] = true
+					pushCount.Add(1)
+					alog.Logger.Info(
+						"RoonCheckPlayingTrack 标记听歌完成", zap.String("track", pushTrackScrobbleReq.Track),
+					)
+				}
+				// 上传听歌ing
+				if currentTrack != previousTrack {
+					// 产生新歌曲
+					delete(maped2, previousTrack)
+					now = time.Now()
+					playingReq := TrackUpdateNowPlayingReq{
+						Artist:      roonTrackInfo.Artist,
+						AlbumArtist: roonTrackInfo.Artist,
+						Track:       roonTrackInfo.Title,
+						Album:       roonTrackInfo.Album,
+						Duration:    int64(roonTrackInfo.Duration),
+					}
+					alog.Logger.Info(
+						"RoonCheckPlayingTrack NowPlayingTrackInfo", zap.Any("roonTrackInfo", roonTrackInfo),
+					)
+					err := TrackUpdateNowPlaying(&playingReq)
+					if err != nil {
+						alog.Logger.Warn("RoonCheckPlayingTrack TrackUpdateNowPlaying", zap.Error(err))
+						continue
+					}
+				}
+				previousTrack = tmpTrack // 防止cue文件出现问题
+				// todo插入听歌流水
+			}
+		case <-stop:
+			fmt.Println("RoonCheckPlayingTrack check playing track exit")
+			return
 		}
 	}
-	return mataDataHandle
+
 }

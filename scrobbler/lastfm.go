@@ -59,19 +59,19 @@ type (
 		XMLName XMLName `json:"XMLName"`
 		Track   struct {
 			Corrected string `json:"Corrected"`
-			Name      string `json:"Name"`
+			Name      string `json:"Title"`
 		} `json:"Track"`
 		Artist struct {
 			Corrected string `json:"Corrected"`
-			Name      string `json:"Name"`
+			Name      string `json:"Title"`
 		} `json:"Artist"`
 		Album struct {
 			Corrected string `json:"Corrected"`
-			Name      string `json:"Name"`
+			Name      string `json:"Title"`
 		} `json:"Album"`
 		AlbumArtist struct {
 			Corrected string `json:"Corrected"`
-			Name      string `json:"Name"`
+			Name      string `json:"Title"`
 		} `json:"AlbumArtist"`
 		IgnoredMessage struct {
 			Corrected string `json:"Corrected"`
@@ -96,7 +96,7 @@ type (
 		Date string `json:"Date"`
 	}
 	Track struct {
-		Name       string     `json:"Name"`
+		Name       string     `json:"Title"`
 		Mbid       string     `json:"Mbid"`
 		Url        string     `json:"Url"`
 		Date       Date       `json:"Date"`
@@ -105,7 +105,7 @@ type (
 		Streamable Streamable `json:"Streamable"`
 	}
 	Artist struct {
-		Name string `json:"Name"`
+		Name string `json:"Title"`
 		Mbid string `json:"Mbid"`
 		Url  string `json:"Url"`
 	}

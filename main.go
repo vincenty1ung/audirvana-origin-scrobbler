@@ -51,7 +51,9 @@ func run(c <-chan struct{}) error {
 		config.ConfigObj.Lastfm.UserUsername,
 		config.ConfigObj.Lastfm.UserPassword,
 	)
+	// musixmatch.InitMxmClient(config.ConfigObj.Musixmatch.ApiKey)
 	// 音乐检查
-	go scrobbler.CheckPlayingTrack(c)
+	go scrobbler.AudirvanaCheckPlayingTrack(c)
+	go scrobbler.RoonCheckPlayingTrack(c)
 	return nil
 }

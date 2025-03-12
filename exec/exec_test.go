@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-audio/wav"
 
@@ -117,4 +118,46 @@ func TestWavInfoHandle(t *testing.T) {
 	fmt.Println(handle.GetAlbumartist())
 	fmt.Println(handle.GetTrackNumber())
 	fmt.Println(handle.GetMusicBrainzTrackId())
+}
+
+func TestNam1(t *testing.T) {
+	fmt.Println("公司系统显示入职前已经有100个月的工龄")
+	date := time.Date(2023, 8, 30, 0, 0, 0, 5e8, time.Local)
+	fmt.Println(date)
+	fmt.Println("再加20月到10年")
+	date = date.AddDate(0, 20, 0)
+	fmt.Println(date)
+	fmt.Println("倒推公司显示的工龄开始日期")
+	date = date.AddDate(0, -120, 0)
+	fmt.Println(date)
+
+	date = time.Date(2016, 5, 1, 0, 0, 0, 5e8, time.Local)
+	addDate := date.AddDate(0, 120, 0)
+	fmt.Print("深圳：2016年5月开始工作：工作十年到期是？")
+	fmt.Println(addDate)
+
+	date = time.Date(2015, 1, 1, 0, 0, 0, 5e8, time.Local)
+	addDate = date.AddDate(0, 120, 0)
+	fmt.Print("青岛：2015开始工作：工作十年到期是？")
+	fmt.Println(addDate)
+
+}
+
+func TestGetMRMediaNowPlaying(t *testing.T) {
+	nowPlaying, err := GetMRMediaNowPlaying()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(nowPlaying)
+}
+
+func TestEnv(t *testing.T) {
+	getenv := os.Getenv("PATH")
+	fmt.Println(getenv)
+	err := os.Setenv("PATH", getenv+":./shell/bin")
+	if err != nil {
+		return
+	}
+	getenv = os.Getenv("PATH")
+	fmt.Println(getenv)
 }

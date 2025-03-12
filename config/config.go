@@ -7,8 +7,9 @@ import (
 var ConfigObj = &Config{}
 
 type Config struct {
-	Lastfm ScrobblerConfig `yaml:"lastfm"`
-	Log    LogConfig       `yaml:"log"`
+	Lastfm     ScrobblerConfig  `yaml:"lastfm"`
+	Musixmatch MusixmatchConfig `yaml:"musixmatch"`
+	Log        LogConfig        `yaml:"log"`
 }
 
 type ScrobblerConfig struct {
@@ -24,6 +25,10 @@ type ScrobblerConfig struct {
 type LogConfig struct {
 	Path  string `yaml:"path"`
 	Level string `yaml:"level"`
+}
+
+type MusixmatchConfig struct {
+	ApiKey string `yaml:"apiKey"`
 }
 
 func InitConfig(filePath string) {
