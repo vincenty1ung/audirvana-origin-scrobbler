@@ -16,6 +16,15 @@ go build
 tail -f logs/go_audirvana-origin-scrobbler.log
 ```
 ### Launch
+#### MacOS>15.4处理方法
+会出现无法读取到roon的播放信息
+原因如下
+1. https://www.v2ex.com/t/1122960?p=1#reply15
+2. https://github.com/TheBoredTeam/boring.notch/issues/417#issuecomment-2805352589 
+
+处理手段按照如下流程启动程序
+* https://github.com/Mx-Iris/MediaRemoteWizard
+#### 脚本执行
 ```shell
 sh shell/script/build_audirvana-origin-scrobblers_launchctl_v2.sh
 sh shell/script/start_audirvana-origin-scrobblersv2.sh
