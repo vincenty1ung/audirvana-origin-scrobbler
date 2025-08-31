@@ -1,9 +1,11 @@
 module github.com/audirvana-origin-scrobbler
 
-go 1.23.4
+go 1.24
 
 require (
 	github.com/andybrewer/mack v0.0.0-20220307193339-22e922cc18af
+	github.com/go-audio/wav v1.1.0
+	github.com/milindmadhukar/go-musixmatch v1.2.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/spf13/cast v1.6.0
@@ -19,11 +21,9 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-audio/audio v1.0.0 // indirect
 	github.com/go-audio/riff v1.0.0 // indirect
-	github.com/go-audio/wav v1.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/milindmadhukar/go-musixmatch v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect

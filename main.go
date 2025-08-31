@@ -34,11 +34,9 @@ func initServer() error {
 	config.InitConfig(*configFile)
 	_ = log.LogInit(config.ConfigObj.Log.Path, config.ConfigObj.Log.Level, c)
 	_ = run(c)
-	select {
-	case <-ctx.Done():
-		fmt.Println("system exiting")
-		close(c)
-	}
+	<-ctx.Done()
+	fmt.Println("system exiting")
+	close(c)
 	return nil
 }
 
@@ -51,6 +49,7 @@ func run(c <-chan struct{}) error {
 		config.ConfigObj.Lastfm.UserUsername,
 		config.ConfigObj.Lastfm.UserPassword,
 	)
+
 	// musixmatch.InitMxmClient(config.ConfigObj.Musixmatch.ApiKey)
 	// 音乐检查
 	go scrobbler.AudirvanaCheckPlayingTrack(c)
