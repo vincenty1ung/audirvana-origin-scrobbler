@@ -92,17 +92,17 @@ musixmatch:
 1.  在项目根目录下打开终端。
 2.  执行构建和部署脚本:
     ```shell
-    sh shell/script/build_audirvana-origin_scrobblers_launchctl_v2.sh
+    sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh
     ```
     这个脚本会自动编译项目,并生成符合 `launchd` 规范的 `.plist` 配置文件。
 3.  启动服务:
     ```shell
-    sh shell/script/start_audirvana-origin-scrobblersv2.sh
+    sh shell/script/start_audirvana-origin-scrobblers.sh
     ```
     现在,程序已经在后台运行,并且会随系统开机自动启动。
 
 4.  **其他管理命令**:
-    *   停止服务: `sh shell/script/stop_audirvana-origin-scrobblersv2.sh`
+    *   停止服务: `sh shell/script/stop_audirvana-origin-scrobblers.sh`
     *   查看日志: `tail -f logs/go_audirvana-origin-scrobbler.log`
 
 ## 4. 项目结构解析

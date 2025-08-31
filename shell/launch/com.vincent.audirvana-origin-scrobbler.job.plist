@@ -5,7 +5,7 @@
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>PATH</key>
-		<string>/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.10/bin:/Library/Frameworks/Python.framework/Versions/3.9/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/vincent/Library/Python/3.10/bin:/Library/Apple/usr/bin:/opt/homebrew/bin</string>
+		<string>/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/opt/homebrew/bin</string>
 	</dict>
 	<key>KeepAlive</key>
 	<true/>
@@ -13,12 +13,11 @@
 	<string>com.vincent.audirvana-scrobbler.job</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/shell/audirvana-origin-scrobbler.sh</string>
+		<string>./shell/bin/audirvana-origin-scrobbler</string>
+		<string>-m</string>
+		<string>-c</string>
+		<string>./config/config_bak.yaml</string>
 	</array>
-    <key>StandardErrorPath</key>
-    <string>./logs/audirvana-origin-scrobbler.log</string>
-    <key>StandardOutPath</key>
-    <string>./logs/audirvana-origin-scrobbler.log</string>
     <key>WorkingDirectory</key>
     <string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/</string>
 	<key>RunAtLoad</key>

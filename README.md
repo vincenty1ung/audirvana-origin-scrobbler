@@ -26,9 +26,9 @@ tail -f logs/go_audirvana-origin-scrobbler.log
 * https://github.com/Mx-Iris/MediaRemoteWizard
 #### 脚本执行
 ```shell
-sh shell/script/build_audirvana-origin-scrobblers_launchctl_v2.sh
-sh shell/script/start_audirvana-origin-scrobblersv2.sh
-sh shell/script/stop_audirvana-origin-scrobblersv2.sh 
+sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh
+sh shell/script/start_audirvana-origin-scrobblers.sh
+sh shell/script/stop_audirvana-origin-scrobblers.sh 
 ```
 
 ## todo
