@@ -33,9 +33,9 @@ There are two main ways to run the project:
 
 2.  **Background Service (Recommended)**:
     *   Use the provided shell scripts to manage the `launchd` service.
-    *   **Build & Install**: `sh shell/script/build_audirvana-origin-scrobblers_launchctl_v2.sh`
-    *   **Start Service**: `sh shell/script/start_audirvana-origin-scrobblersv2.sh`
-    *   **Stop Service**: `sh shell/script/stop_audirvana-origin-scrobblersv2.sh`
+    *   **Build & Install**: `sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh`
+    *   **Start Service**: `sh shell/script/start_audirvana-origin-scrobblers.sh`
+    *   **Stop Service**: `sh shell/script/stop_audirvana-origin-scrobblers.sh`
 
 ## 4. Key Project Structure
 
