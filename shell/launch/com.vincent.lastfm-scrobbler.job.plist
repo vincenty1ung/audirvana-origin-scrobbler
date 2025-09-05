@@ -10,7 +10,7 @@
 	<key>KeepAlive</key>
 	<true/>
 	<key>Label</key>
-	<string>com.vincent.audirvana-scrobbler.job</string>
+	<string>com.vincent.lastfm-scrobbler.job</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>./shell/bin/lastfm-scrobbler</string>

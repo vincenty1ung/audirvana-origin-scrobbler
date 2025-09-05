@@ -17,9 +17,9 @@ import (
 
 func setupTestDB(t *testing.T) *gorm.DB {
 	// Create custom logger
-	_ = log.LogInit("./logs", "debug", make(<-chan struct{}))
+	logger := log.LogInit("./logs", "debug", make(<-chan struct{}))
 
-	customLogger := NewCustomLogger()
+	customLogger := NewCustomLogger(logger)
 	// Create a temporary in-memory database for testing
 	db, err := gorm.Open(
 		sqlite.Open(":memory:"), &gorm.Config{
@@ -82,8 +82,8 @@ func TestTrackPlayRecordCRUD(t *testing.T) {
 		TrackNumber:   1,
 		Source:        "Audirvana",
 	}
-	log.Info(ctx, "adding record", zap.String("TraceIDFromContext", telemetry.TraceIDFromContext(ctx)))
 	err := InsertTrackPlayRecord(ctx, record)
+	log.Warn(ctx, "adding record", zap.String("TraceIDFromContext", telemetry.TraceIDFromContext(ctx)))
 	assert.NoError(t, err)
 	assert.NotZero(t, record.ID)
 

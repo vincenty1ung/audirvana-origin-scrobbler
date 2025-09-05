@@ -27,7 +27,7 @@ func NewSyncRecordsCommand() *cobra.Command {
 
 func syncRecords(cmd *cobra.Command, args []string) error {
 	// Initialize database
-	if err := model.InitDB(config.ConfigObj.Database.Path); err != nil {
+	if err := model.InitDB(config.ConfigObj.Database.Path, nil); err != nil {
 		return fmt.Errorf("failed to initialize database: %w", err)
 	}
 

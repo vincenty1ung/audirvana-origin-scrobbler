@@ -84,7 +84,7 @@ Install as service:
 	<key>KeepAlive</key>
 	<true/>
 	<key>Label</key>
-	<string>audirvana-scrobbler.job</string>
+	<string>lastfm-scrobbler.job</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/Users/YOUR_USER/lastfm-scrobbler.sh</string>

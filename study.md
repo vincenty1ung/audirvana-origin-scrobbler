@@ -53,7 +53,7 @@
 
 ```yaml
 lastfm:
-  applicationName: audirvana-scrobbler
+  applicationName: lastfm-scrobbler
   apiKey: 9c7d3bxxxxx6bab # <-- 替换成你自己的
   sharedSecret: 80c9e7cxxxxxe0ec3b5 # <-- 替换成你自己的
   registeredTo: vincxxxch1n

@@ -10,7 +10,7 @@
 	<key>KeepAlive</key>
 	<true/>
 	<key>Label</key>
-	<string>com.vincent.audirvana-scrobbler-clearlogfile.job</string>
+	<string>com.vincent.lastfm-scrobbler-clearlogfile.job</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/Users/vincent/Developer/code/other/lastfm-scrobbler/shell/bin/clear_bin</string>

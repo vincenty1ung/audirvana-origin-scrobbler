@@ -3,7 +3,7 @@
 ##   Audirvana Origin Scrobbler
 ##   Ver: 1.0.2
 ##
-##   Forked of https://github.com/sprtm/audirvana-scrobbler
+##   Forked of https://github.com/sprtm/lastfm-scrobbler
 ##   Scrobble Audirvana Origin tracks to last.fm
 ##   Req: python3 + scrobblerh (pip install)
 ##

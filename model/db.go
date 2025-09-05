@@ -21,14 +21,17 @@ func GetDB() *gorm.DB {
 
 // customLogger is a custom logger for GORM that uses zap and OpenTelemetry
 type customLogger struct {
+	logger *zap.Logger
 }
 
 // NewCustomLogger creates a new custom logger
-func NewCustomLogger() logger.Interface {
-	return &customLogger{}
+func NewCustomLogger(log *zap.Logger) logger.Interface {
+	return &customLogger{
+		logger: log,
+	}
 }
 
-// LogMode sets the log mode
+// LogMode sets the logger mode
 func (l *customLogger) LogMode(level logger.LogLevel) logger.Interface {
 	return l
 }
@@ -45,17 +48,17 @@ func (l *customLogger) Fields(datas ...interface{}) []zap.Field {
 
 // Info logs info level messages
 func (l *customLogger) Info(ctx context.Context, msg string, data ...interface{}) {
-	log.Info(ctx, msg, l.Fields(data...)...)
+	log.InfoForLog(ctx, l.logger, msg, l.Fields(data...)...)
 }
 
 // Warn logs warn level messages
 func (l *customLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
-	log.Warn(ctx, msg, l.Fields(data...)...)
+	log.InfoForLog(ctx, l.logger, msg, l.Fields(data...)...)
 }
 
 // Error logs error level messages
 func (l *customLogger) Error(ctx context.Context, msg string, data ...interface{}) {
-	log.Error(ctx, msg, l.Fields(data...)...)
+	log.ErrorForLog(ctx, l.logger, msg, l.Fields(data...)...)
 }
 
 // Trace logs SQL queries and their execution time
@@ -113,11 +116,11 @@ func (l *customLogger) Trace(
 	}
 }
 
-func InitDB(dataSourceName string) error {
+func InitDB(dataSourceName string, l *zap.Logger) error {
 	var err error
 
 	// Create custom logger with OpenTelemetry
-	customLogger := NewCustomLogger()
+	customLogger := NewCustomLogger(l)
 
 	// Open database with custom logger
 	GlobalDB, err = gorm.Open(

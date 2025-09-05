@@ -56,7 +56,7 @@ func initServer() error {
 	defer stop()
 	c := make(chan struct{})
 	config.InitConfig(*configFile)
-	_ = log.LogInit(config.ConfigObj.Log.Path, config.ConfigObj.Log.Level, c)
+	logger := log.LogInit(config.ConfigObj.Log.Path, config.ConfigObj.Log.Level, c)
 
 	// Initialize telemetry
 	if err := telemetry.Init(config.ConfigObj.Telemetry); err != nil {
@@ -65,7 +65,7 @@ func initServer() error {
 	defer telemetry.Shutdown(context.Background())
 
 	// Initialize database
-	if err := model.InitDB(config.ConfigObj.Database.Path); err != nil {
+	if err := model.InitDB(config.ConfigObj.Database.Path, logger); err != nil {
 		return fmt.Errorf("failed to initialize database: %w", err)
 	}
 

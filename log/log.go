@@ -68,6 +68,21 @@ func Warn(ctx context.Context, msg string, fields ...zap.Field) {
 	Logger.Warn(msg, fields...)
 }
 
+func ErrorForLog(ctx context.Context, logger *zap.Logger, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	logger.Error(msg, fields...)
+}
+
+func InfoForLog(ctx context.Context, logger *zap.Logger, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	logger.Info(msg, fields...)
+}
+
+func WarnForLog(ctx context.Context, logger *zap.Logger, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	logger.Warn(msg, fields...)
+}
+
 // Error logs an error message with context
 func Error(ctx context.Context, msg string, fields ...zap.Field) {
 	fields = append(fields, traceFields(ctx)...)
@@ -152,5 +167,8 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 		core, zap.AddCaller(), zap.AddCallerSkip(1),
 		// zap.Development(),
 	)
-	return Logger
+	return zap.New(
+		core, zap.AddCaller(), zap.AddCallerSkip(5), zap.Development(),
+		// zap.Development(),
+	)
 }
