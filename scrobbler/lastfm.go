@@ -2,6 +2,7 @@ package scrobbler
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -122,7 +123,9 @@ type (
 func init() {
 }
 
-func InitLastfmApi(apiKey, apiSecret, userLoginToken string, isMobile bool, userUsername, userPassword string) {
+func InitLastfmApi(
+	ctx context.Context, apiKey, apiSecret, userLoginToken string, isMobile bool, userUsername, userPassword string,
+) {
 	lastfmApi = lastfm.New(apiKey, apiSecret)
 	if isMobile {
 		err := lastfmApi.Login(userUsername, userPassword)
@@ -136,7 +139,7 @@ func InitLastfmApi(apiKey, apiSecret, userLoginToken string, isMobile bool, user
 		}
 		authUrl := lastfmApi.GetAuthTokenUrl(token)
 
-		alog.Logger.Info(token)
+		alog.Info(ctx, token)
 		ok := promptUser(authUrl)
 		if ok {
 			err = lastfmApi.LoginWithToken(token)
@@ -228,29 +231,29 @@ func GetLovedTracksUser(user string, limit int) (result *GetLovedTracksResp, err
 	return
 }
 
-func PushTrackScrobble(req *PushTrackScrobbleReq) (string, error) {
-	alog.Logger.Info("PushTrackScrobble:", zap.Any("req", req))
+func PushTrackScrobble(ctx context.Context, req *PushTrackScrobbleReq) (string, error) {
+	alog.Info(ctx, "PushTrackScrobble:", zap.Any("req", req))
 	reqMap, err := req.ToMap()
 	if err != nil {
-		alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+		alog.Warn(ctx, "TrackUpdateNowPlaying", zap.Error(err))
 		return "", err
 	}
 	result, err := lastfmApi.Track.Scrobble(reqMap)
 	if err != nil {
-		alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+		alog.Warn(ctx, "TrackUpdateNowPlaying", zap.Error(err))
 		return "", err
 	}
 
 	marshal, err := json.Marshal(result)
 	if err != nil {
-		alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+		alog.Warn(ctx, "TrackUpdateNowPlaying", zap.Error(err))
 		return "", err
 	}
 	return string(marshal), nil
 }
 
-func TrackUpdateNowPlaying(req *TrackUpdateNowPlayingReq) error {
-	alog.Logger.Info("TrackUpdateNowPlaying", zap.Any("req", req))
+func TrackUpdateNowPlaying(ctx context.Context, req *TrackUpdateNowPlayingReq) error {
+	alog.Info(ctx, "TrackUpdateNowPlaying", zap.Any("req", req))
 	resp := new(TrackUpdateNowPlayingResp)
 	argsMap, err := req.ToMap()
 	if err != nil {
@@ -258,21 +261,21 @@ func TrackUpdateNowPlaying(req *TrackUpdateNowPlayingReq) error {
 	}
 	result, err := lastfmApi.Track.UpdateNowPlaying(argsMap)
 	if err != nil {
-		alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+		alog.Warn(ctx, "TrackUpdateNowPlaying", zap.Error(err))
 		return err
 	}
 
 	marshal, err := json.Marshal(result)
 	if err != nil {
-		alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+		alog.Warn(ctx, "TrackUpdateNowPlaying", zap.Error(err))
 		return err
 	}
 	err = json.Unmarshal(marshal, resp)
 	if err != nil {
-		alog.Logger.Warn("TrackUpdateNowPlaying", zap.Error(err))
+		alog.Warn(ctx, "TrackUpdateNowPlaying", zap.Error(err))
 		return err
 	}
 
-	// alog.Logger.Info(resp)
+	// alog.Info(ctx, resp)
 	return nil
 }

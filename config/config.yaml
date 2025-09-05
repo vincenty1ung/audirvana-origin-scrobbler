@@ -1,13 +1,24 @@
 lastfm:
-  applicationName: "audirvana-scrobbler"
+  applicationName: "audirvana-origin-scrobbler"
   apiKey: ""
   sharedSecret: ""
   registeredTo: ""
-  userLoginToken:
+  userLoginToken: ""
   userUsername: ""
   userPassword: ""
 
-log:
-  path: ./logs
-  level: info
+musixmatch:
+  apiKey: ""
 
+log:
+  path: "logs/go_audirvana-origin-scrobbler.log"
+  level: "info"
+
+database:
+  path: "storage/tracks.db"
+
+http:
+  port: "8080"
+
+telemetry:
+  name: "audirvana-origin-scrobbler"

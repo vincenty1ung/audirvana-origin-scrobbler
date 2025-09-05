@@ -1,18 +1,17 @@
 package log
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"sync/atomic"
-	"syscall"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"golang.org/x/sys/unix"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -51,6 +50,52 @@ func createLumberJackLogger(filename string) zapcore.WriteSyncer {
 	return zapcore.AddSync(lumberJackLogger)
 }
 
+// Debug logs a debug message with context
+func Debug(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	Logger.Debug(msg, fields...)
+}
+
+// Info logs an info message with context
+func Info(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	Logger.Info(msg, fields...)
+}
+
+// Warn logs a warning message with context
+func Warn(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	Logger.Warn(msg, fields...)
+}
+
+// Error logs an error message with context
+func Error(ctx context.Context, msg string, fields ...zap.Field) {
+	fields = append(fields, traceFields(ctx)...)
+	Logger.Error(msg, fields...)
+}
+
+// traceFields extracts trace information from context
+func traceFields(ctx context.Context) []zap.Field {
+	if ctx == nil {
+		return nil
+	}
+
+	span := trace.SpanFromContext(ctx)
+	if !span.IsRecording() {
+		return nil
+	}
+
+	spanCtx := span.SpanContext()
+	if !spanCtx.IsValid() {
+		return nil
+	}
+
+	return []zap.Field{
+		zap.String("trace_id", spanCtx.TraceID().String()),
+		zap.String("span_id", spanCtx.SpanID().String()),
+	}
+}
+
 func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 	err := os.MkdirAll(logPath, 0755)
 	if err != nil && !os.IsExist(err) {
@@ -77,10 +122,24 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 		os.Exit(1)
 	}*/
 	fileAndStdoutSyncer := zapcore.NewMultiWriteSyncer(
-		createLumberJackLogger(logPath+"/go_audirvana-origin-scrobbler.log"), zapcore.AddSync(os.Stdout),
+		createLumberJackLogger(logPath+"/go_audirvana-origin-scrobbler.log"),
+		zapcore.AddSync(os.Stdout),
 	)
 
-	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig := zapcore.EncoderConfig{
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		MessageKey:     "msg",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
+	encoderConfig = zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.DateTime)
 
 	core := zapcore.NewCore(
@@ -90,63 +149,8 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 	)
 
 	Logger = zap.New(
-		core,
+		core, zap.AddCaller(), zap.AddCallerSkip(1),
 		// zap.Development(),
-		zap.AddCaller(),
-		zap.AddCallerSkip(0),
 	)
-
-	// 示例日志记录
-	defer func() {
-		err = Logger.Sync()
-		if err != nil && (!errors.Is(err, unix.ENOTTY) || !errors.Is(err, syscall.ENOTTY) || !errors.Is(
-			err, unix.EBADF,
-		)) {
-			// golang.org/x/sys/unix.ENOTTY (25)
-			// golang.org/x/sys/unix.EBADF (9)
-			fmt.Println(err)
-		} else if err != nil {
-			panic(err)
-		} else {
-
-		}
-	}()
-
-	// 定时任务逻辑（例如使用时间轮，cron定时任务等）
-	// 这里仅示例代码中直接执行一次清理工
-	go cleanOldLogs(logPath, c)
 	return Logger
-}
-
-func cleanOldLogs(dir string, c <-chan struct{}) {
-	ticker := time.NewTicker(time.Hour * 24)
-	for {
-		select {
-		case <-c:
-			fmt.Println("clean old logs exit")
-			return
-		case <-ticker.C:
-			files, err := os.ReadDir(dir)
-			if err != nil {
-				fmt.Println("Failed to list log files:", err.Error())
-				return
-			}
-
-			today := time.Now()
-			for _, file := range files {
-				info, _ := file.Info() // 获取FileInfo
-				logTime := info.ModTime()
-
-				if !file.IsDir() && logTime.Before(today.AddDate(0, 0, -7)) {
-					err = os.Remove(filepath.Join(dir, file.Name()))
-					if err != nil {
-						fmt.Printf("Failed to remove old log: %s. Err: %v\n", filepath.Join(dir, file.Name()), err)
-					} else {
-						fmt.Println("Removed outdated log:", filepath.Join(dir, file.Name()))
-					}
-				}
-			}
-		}
-	}
-
 }

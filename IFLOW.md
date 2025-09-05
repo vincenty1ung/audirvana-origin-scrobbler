@@ -16,15 +16,15 @@
 - **数据库**: SQLite (通过 GORM)
 - **链路跟踪**: OpenTelemetry
 - **主要依赖库**:
-    - `github.com/spf13/cobra` - 命令行接口
-    - `github.com/spf13/viper` - 配置管理
-    - `go.uber.org/zap` - 日志记录
-    - `github.com/shkh/lastfm-go` - Last.fm API 客户端
-    - `github.com/milindmadhukar/go-musixmatch` - Musixmatch API 客户端 (当前被注释)
-    - `github.com/andybrewer/mack` - AppleScript 执行
-    - `gorm.io/gorm` - ORM 框架
-    - `gorm.io/driver/sqlite` - SQLite 驱动
-    - `go.opentelemetry.io/otel` - OpenTelemetry SDK
+  - `github.com/spf13/cobra` - 命令行接口
+  - `github.com/spf13/viper` - 配置管理
+  - `go.uber.org/zap` - 日志记录
+  - `github.com/shkh/lastfm-go` - Last.fm API 客户端
+  - `github.com/milindmadhukar/go-musixmatch` - Musixmatch API 客户端 (当前被注释)
+  - `github.com/andybrewer/mack` - AppleScript 执行
+  - `gorm.io/gorm` - ORM 框架
+  - `gorm.io/driver/sqlite` - SQLite 驱动
+  - `go.opentelemetry.io/otel` - OpenTelemetry SDK
 
 ## 项目架构
 
@@ -133,8 +133,8 @@ tail -f logs/go_audirvana-origin-scrobbler.log
 
 - **特性清单**: 为任何新模块或特性，必须在 `memory/{date}` 目录内创建一个特性清单文件，详细说明其范围、功能和实现要点。文件名应具有描述性，如 `feature_name_feature_manifest.md`。
 - **记忆索引**: 创建新特性后，必须在中央 `memory_index.md` 文件中添加一个条目，包含:
-    - **日期**: 添加特性的日期。
-    - **特性摘要**: 一句话总结新特性。
-    - **链接**: 指向该特性的特性清单文件的链接。
-- **记忆扩展**: 如果主 `CURSOR.md` 文件变得过于庞大，应为特定领域创建补充的 markdown 文件，并在主文件中链接到它们，以保持清晰。
+  - **日期**: 添加特性的日期。
+  - **特性摘要**: 一句话总结新特性。
+  - **链接**: 指向该特性的特性清单文件的链接。
+- **记忆扩展**: 如果主 `IFLOW.md` 文件变得过于庞大，应为特定领域创建补充的 markdown 文件，并在主文件中链接到它们，以保持清晰。
 - **日期分类管理**: 特性清单文件应按创建日期归档到 `memory/{date}` 目录中，以便更好地组织和管理。

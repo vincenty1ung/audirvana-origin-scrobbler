@@ -1,6 +1,7 @@
 package audirvana
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -29,7 +30,7 @@ type (
 	}
 )
 
-func IsRunning() bool {
+func IsRunning(ctx context.Context) bool {
 	tell, err := applesciprt.Tell(
 		common.AppSystemEvents, fmt.Sprintf(
 			`set listApplicationProcessNames to name of every application process
@@ -43,10 +44,10 @@ func IsRunning() bool {
 	if err != nil {
 		return false
 	}
-	
+
 	parseBool, err := strconv.ParseBool(tell)
 	if err != nil {
-		alog.Logger.Warn("err:", zap.Error(err))
+		alog.Warn(ctx, "err:", zap.Error(err))
 		return false
 	}
 	return parseBool
@@ -54,10 +55,10 @@ func IsRunning() bool {
 
 // GetState 使用 AppleScript 从 Audirvana Origin 应用获取当前播放器状态。
 // 返回播放器状态（common.PlayerState）以及过程中遇到的任何错误。
-func GetState() (playerState common.PlayerState, err error) {
+func GetState(ctx context.Context) (playerState common.PlayerState, err error) {
 	result, err := applesciprt.Tell(common.AppAudirvanaOrigin, `set audirvanaState to get player state`)
 	if err != nil {
-		alog.Logger.Warn("err:", zap.Error(err))
+		alog.Warn(ctx, "err:", zap.Error(err))
 		return "", err
 	}
 	return common.PlayerState(result), nil
@@ -66,7 +67,7 @@ func GetState() (playerState common.PlayerState, err error) {
 // GetNowPlayingTrackInfo 使用 AppleScript 从 Audirvana Origin 获取当前正在播放的曲目信息。
 // 它返回一个指向 TrackInfo 结构体的指针，包含曲目的标题、专辑、艺术家、时长、播放位置和 URL。
 // 如果在执行 AppleScript 或解析数据时发生错误，函数会记录警告并返回 nil。
-func GetNowPlayingTrackInfo() *TrackInfo {
+func GetNowPlayingTrackInfo(ctx context.Context) *TrackInfo {
 	tell, err := applesciprt.Tell(
 		common.AppAudirvanaOrigin,
 		`set playingTrack to playing track title
@@ -80,7 +81,7 @@ func GetNowPlayingTrackInfo() *TrackInfo {
 	set result to playingTrack & "|" & playingAlbum & "|" & playingArtist & "|" & playingDuration & "|" & playingPosition & "|" & playingUrl`,
 	)
 	if err != nil {
-		alog.Logger.Warn("err:", zap.Error(err))
+		alog.Warn(ctx, "err:", zap.Error(err))
 		return nil
 	}
 	split := strings.Split(tell, "|")
@@ -98,21 +99,21 @@ func GetNowPlayingTrackInfo() *TrackInfo {
 		case 3:
 			parseInt, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
 			if err != nil {
-				alog.Logger.Warn("err:", zap.Error(err))
+				alog.Warn(ctx, "err:", zap.Error(err))
 				return nil
 			}
 			info.Duration = parseInt
 		case 4:
 			parseInt, err := strconv.ParseFloat(strings.TrimSpace(s), 32)
 			if err != nil {
-				alog.Logger.Warn("err:", zap.Error(err))
+				alog.Warn(ctx, "err:", zap.Error(err))
 				return nil
 			}
 			info.Position = parseInt
 		case 5:
 			unescape, err := url.PathUnescape(s)
 			if err != nil {
-				alog.Logger.Warn("err:", zap.Error(err))
+				alog.Warn(ctx, "err:", zap.Error(err))
 				return nil
 			}
 			info.Url = strings.TrimSpace(unescape)

@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -90,7 +91,7 @@ func BuildWavInfoHandle(file string) (MataDataHandle, error) {
 		defer func(in *os.File) {
 			err := in.Close()
 			if err != nil {
-				alog.Logger.Error("Failed to close file", zap.String("file", file), zap.Error(err))
+				alog.Error(context.Background(), "Failed to close file", zap.String("file", file), zap.Error(err))
 			}
 		}(in)
 		if err != nil {
@@ -105,7 +106,7 @@ func BuildWavInfoHandle(file string) (MataDataHandle, error) {
 	defer func(in *os.File) {
 		err := in.Close()
 		if err != nil {
-			alog.Logger.Error("Failed to close file", zap.String("file", file), zap.Error(err))
+			alog.Error(context.Background(), "Failed to close file", zap.String("file", file), zap.Error(err))
 		}
 	}(in)
 	if err != nil {
@@ -332,7 +333,7 @@ func runCommand(command string, args ...string) (string, error) {
 	return string(output), nil
 }
 
-func IsValidPath(path string) (bool, string, error) {
+func IsValidPath(ctx context.Context, path string) (bool, string, error) {
 	// 确保路径不是空字符串
 	if path == "" {
 		return false, "", fmt.Errorf("empty or undefined path")
@@ -343,7 +344,7 @@ func IsValidPath(path string) (bool, string, error) {
 	// 解析符号链接和相对路径到绝对路径
 	resolvedPath, err := filepath.EvalSymlinks(path)
 	if err != nil {
-		alog.Logger.Warn("Cannot resolve symlinks:", zap.Error(err))
+		alog.Warn(ctx, "Cannot resolve symlinks:", zap.Error(err))
 		// 检查是否因为文件不存在而失败，如果是则返回。
 		var pathError *os.PathError
 		isNotExist := errors.As(err, &pathError)
@@ -351,20 +352,24 @@ func IsValidPath(path string) (bool, string, error) {
 			return false, "", fmt.Errorf("path does not exist: %s", path)
 		}
 		// 如果不是因为路径不存在导致的错误，则记录并返回
-		alog.Logger.Warn("Unknown error occurred while resolving symlinks:", zap.Error(err))
+		alog.Warn(ctx, "Unknown error occurred while resolving symlinks:", zap.Error(err))
 
 		return false, "", err
 	}
 	fileInfo, err := os.Stat(resolvedPath)
 	if err != nil {
-		alog.Logger.Info(
+		alog.Info(
+			ctx,
 			"Cannot stat the path: %s - Error: ", zap.String("resolvedPath", resolvedPath), zap.Error(err),
 		)
 		return false, "", fmt.Errorf("error while checking file existence: %s", err)
 	}
 	// 根据fileInfo.IsDir()判断是文件还是目录
 	isDirectory := fileInfo.IsDir()
-	alog.Logger.Info(fmt.Sprintf("checkValidPath:The path [%s] exists and [%v] a directory", resolvedPath, isDirectory))
+	alog.Info(
+		ctx,
+		fmt.Sprintf("checkValidPath:The path [%s] exists and [%v] a directory", resolvedPath, isDirectory),
+	)
 	return true, resolvedPath, nil
 }
 func GetFilePathExt(path string) string {

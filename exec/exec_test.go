@@ -73,7 +73,7 @@ func TestName(t *testing.T) {
 }
 
 func TestWavInfoHandle(t *testing.T) {
-	ok, file, err := IsValidPath("file:///Users/vincent/Documents/多媒体/音乐/CD/万能青年旅店/张洲/01 张洲.wav")
+	ok, file, err := IsValidPath(nil, "file:///Users/vincent/Documents/多媒体/音乐/CD/万能青年旅店/张洲/01 张洲.wav")
 	if err != nil {
 		t.Fatal(err)
 		return

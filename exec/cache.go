@@ -1,6 +1,8 @@
 package exec
 
 import (
+	"context"
+
 	"github.com/vincenty1ung/yeung-go-study/lru"
 	"go.uber.org/zap"
 
@@ -10,7 +12,7 @@ import (
 
 var lruCache = lru.Constructor[string](200)
 
-func FindMataDataHandleCache(key string) MataDataHandle {
+func FindMataDataHandleCache(ctx context.Context, key string) MataDataHandle {
 	var (
 		mataDataHandle MataDataHandle
 		err            error
@@ -19,11 +21,11 @@ func FindMataDataHandleCache(key string) MataDataHandle {
 	if exiftoolInfo := lruCache.Get(key); exiftoolInfo != nil {
 		mataDataHandle = exiftoolInfo.(MataDataHandle)
 	} else {
-		if ok, path, _ := IsValidPath(key); ok {
+		if ok, path, _ := IsValidPath(ctx, key); ok {
 			if GetFilePathExt(path) == common.FileExtWav1 || GetFilePathExt(path) == common.FileExtWav2 {
 				mataDataHandle, err = BuildWavInfoHandle(path)
 				if err != nil {
-					alog.Logger.Warn("exec BuildExiftoolHandle", zap.Error(err))
+					alog.Warn(ctx, "exec BuildExiftoolHandle", zap.Error(err))
 					return mataDataHandle
 				}
 				if mataDataHandle != nil {
@@ -32,7 +34,7 @@ func FindMataDataHandleCache(key string) MataDataHandle {
 			} else {
 				mataDataHandle, err = BuildExiftoolHandle(path)
 				if err != nil {
-					alog.Logger.Warn("exec BuildExiftoolHandle", zap.Error(err))
+					alog.Warn(ctx, "exec BuildExiftoolHandle", zap.Error(err))
 					return mataDataHandle
 				}
 				if mataDataHandle != nil {
