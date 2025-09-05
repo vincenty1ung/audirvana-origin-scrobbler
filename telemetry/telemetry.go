@@ -15,11 +15,11 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"github.com/audirvana-origin-scrobbler/config"
+	"github.com/lastfm-scrobbler/config"
 )
 
 const (
-	TracerName = "audirvana-origin-scrobbler"
+	TracerName = "lastfm-scrobbler"
 )
 
 var (

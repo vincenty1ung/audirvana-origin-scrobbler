@@ -9,9 +9,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/audirvana-origin-scrobbler/applesciprt"
-	"github.com/audirvana-origin-scrobbler/common"
-	alog "github.com/audirvana-origin-scrobbler/log"
+	alog "github.com/lastfm-scrobbler/log"
+
+	"github.com/lastfm-scrobbler/applesciprt"
+	"github.com/lastfm-scrobbler/common"
 )
 
 type (

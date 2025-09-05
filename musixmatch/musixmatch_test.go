@@ -3,8 +3,8 @@ package musixmatch
 import (
 	"testing"
 
-	"github.com/audirvana-origin-scrobbler/config"
-	"github.com/audirvana-origin-scrobbler/log"
+	"github.com/lastfm-scrobbler/config"
+	"github.com/lastfm-scrobbler/log"
 )
 
 func init() {

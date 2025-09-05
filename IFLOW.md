@@ -1,6 +1,6 @@
 # 项目概述
 
-这是一个用 Go 语言编写的音乐播放记录同步工具，主要用于将 Audirvana 和 Roon 播放的音乐曲目同步（Scrobble）到 Last.fm。项目通过定时检查播放状态，获取当前播放曲目的信息，并在满足一定条件（如播放进度达到55%）时将曲目信息上报到 Last.fm。
+这是一个用 Go 语言编写的音乐播放记录同步工具，主要用于将 Audirvana 和 Roon 播放的音乐曲目同步（Scrobble）到 Last.fm。项目通过定时检查播放状态，获取当前播放曲目的信息，并在满足一定条件（如播放进度达到 55%）时将曲目信息上报到 Last.fm。
 
 ## 新增功能概览
 
@@ -42,7 +42,9 @@
 ## 数据模型
 
 ### TrackPlayRecord (播放记录)
+
 存储每次播放的详细信息：
+
 - ID: 主键
 - Artist: 艺术家
 - AlbumArtist: 专辑艺术家
@@ -50,7 +52,7 @@
 - Album: 专辑名
 - Duration: 持续时间
 - PlayTime: 播放时间
-- Scrobbled: 是否已同步到Last.fm
+- Scrobbled: 是否已同步到 Last.fm
 - MusicBrainzID: MusicBrainz ID
 - TrackNumber: 音轨号
 - Source: 数据来源（Audirvana 或 Roon）
@@ -58,7 +60,9 @@
 - UpdatedAt: 更新时间
 
 ### TrackPlayCount (播放统计)
+
 统计每首曲目的播放次数：
+
 - ID: 主键
 - Artist: 艺术家
 - Album: 专辑名
@@ -71,15 +75,19 @@
 ## 核心功能实现
 
 ### 数据库初始化
+
 在 `model/db.go` 中实现数据库连接和初始化，使用自定义日志记录器集成 zap 和 OpenTelemetry。
 
 ### 链路跟踪
+
 在 `telemetry/telemetry.go` 中实现 OpenTelemetry 的初始化和配置，包括 tracer provider 和 exporter 的设置。在各个关键模块中创建 span 来跟踪请求和操作的执行过程。
 
 ### 播放记录存储
+
 在 `model/track_play_record.go` 中实现播放记录的插入、更新和查询功能。
 
 ### 播放统计
+
 在 `model/track_play_count.go` 中实现播放次数的增加和查询功能，使用乐观锁机制处理并发更新。
 
 # 构建和运行
@@ -96,29 +104,29 @@ go build
 
 ## 运行
 
-```bash
-./audirvana-origin-scrobbler
-```
+````bash
+./lastfm-scrobbler
+```lastfm-scrobbler
 
 ## 使用脚本运行
-
+lastfm-scrobbler
 项目提供了 shell 脚本来简化构建和运行过程：
 
-```bash
+```bashlastfm-scrobbler
 # 构建 launchctl 服务
-sh shell/script/build_audirvana-origin-scrobblers_launchctl.sh
+sh shell/script/build_lastfm-scrobblers_launchctl.sh
 
 # 启动服务
-sh shell/script/start_audirvana-origin-scrobblers.sh
-
+sh shell/script/start_lastfm-scrobblers.sh
+lastfm-scrobbler
 # 停止服务
-sh shell/script/stop_audirvana-origin-scrobblers.sh
-```
+sh shell/script/stop_lastfm-scrobblers.sh
+````
 
 ## 查看日志
 
 ```bash
-tail -f logs/go_audirvana-origin-scrobbler.log
+tail -f logs/go_lastfm-scrobbler.log
 ```
 
 # 开发约定

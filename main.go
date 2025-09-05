@@ -8,17 +8,23 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/audirvana-origin-scrobbler/api"
-	"github.com/audirvana-origin-scrobbler/cmd"
-	"github.com/audirvana-origin-scrobbler/config"
-	"github.com/audirvana-origin-scrobbler/log"
-	"github.com/audirvana-origin-scrobbler/model"
-	"github.com/audirvana-origin-scrobbler/scrobbler"
-	"github.com/audirvana-origin-scrobbler/telemetry"
+	"github.com/lastfm-scrobbler/api"
+	"github.com/lastfm-scrobbler/cmd"
+	"github.com/lastfm-scrobbler/conf
+	"github.com/lastfm-scrobbler/log"
+	"github.com/lastfm-scrobbler/model"
+l"
+	"github.com/lastfm-scrobbler/scrobbl
+	"github.com/lastfm-scrobbler/telemetry"
+)
+
+var (
+	configFile = new(string)
+	isMobile   = new(bool)
 )
 
 func main() {
-	rootCmd := NewCommand("audirvana-origin-scrobbler", "", "")
+	rootCmd := NewCommand("lastfm-scrobbler", "", "")
 	// command.SetHelpTemplate("使用-c 设置配置文件路径\n使用-m 设置true/false")
 	rootCmd.Version = "1.0.0"
 	rootCmd.Args = cobra.NoArgs

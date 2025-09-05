@@ -13,13 +13,13 @@
 	<string>com.vincent.audirvana-scrobbler.job</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>./shell/bin/audirvana-origin-scrobbler</string>
+		<string>./shell/bin/lastfm-scrobbler</string>
 		<string>-m</string>
 		<string>-c</string>
 		<string>./config/config_bak.yaml</string>
 	</array>
     <key>WorkingDirectory</key>
-    <string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/</string>
+    <string>/Users/vincent/Developer/code/other/lastfm-scrobbler/</string>
 	<key>RunAtLoad</key>
 	<true/>
 </dict>

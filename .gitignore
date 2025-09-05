@@ -1,7 +1,7 @@
 /audirvana/logs/
-/logs/go_audirvana-origin-scrobbler.log
+/logs/go_lastfm-scrobbler.log
 /exec/logs/
-/shell/bin/audirvana-origin-scrobbler
+/shell/bin/lastfm-scrobbler
 /config/config_bak.yaml
 /scrobbler/logs/
 /logs/

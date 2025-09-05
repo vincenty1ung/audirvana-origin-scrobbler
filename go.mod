@@ -1,4 +1,4 @@
-module github.com/audirvana-origin-scrobbler
+module github.com/lastfm-scrobbler
 
 go 1.24
 

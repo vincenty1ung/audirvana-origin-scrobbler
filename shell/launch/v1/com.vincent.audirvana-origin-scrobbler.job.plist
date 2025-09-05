@@ -13,14 +13,14 @@
 	<string>com.vincent.audirvana-scrobbler.job</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/shell/audirvana-origin-scrobbler.sh</string>
+		<string>/Users/vincent/Developer/code/other/lastfm-scrobbler/shell/lastfm-scrobbler.sh</string>
 	</array>
     <key>StandardErrorPath</key>
-    <string>./logs/audirvana-origin-scrobbler.log</string>
+    <string>./logs/lastfm-scrobbler.log</string>
     <key>StandardOutPath</key>
-    <string>./logs/audirvana-origin-scrobbler.log</string>
+    <string>./logs/lastfm-scrobbler.log</string>
     <key>WorkingDirectory</key>
-    <string>/Users/vincent/Developer/code/other/audirvana-origin-scrobbler/</string>
+    <string>/Users/vincent/Developer/code/other/lastfm-scrobbler/</string>
 	<key>RunAtLoad</key>
 	<true/>
 </dict>

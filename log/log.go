@@ -122,7 +122,7 @@ func LogInit(logPath, infoLevel string, c <-chan struct{}) *zap.Logger {
 		os.Exit(1)
 	}*/
 	fileAndStdoutSyncer := zapcore.NewMultiWriteSyncer(
-		createLumberJackLogger(logPath+"/go_audirvana-origin-scrobbler.log"),
+		createLumberJackLogger(logPath+"/go_lastfm-scrobbler.log"),
 		zapcore.AddSync(os.Stdout),
 	)
 

@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/audirvana-origin-scrobbler/config"
-	"github.com/audirvana-origin-scrobbler/model"
-	"github.com/audirvana-origin-scrobbler/scrobbler"
+	"github.com/lastfm-scrobbler/config"
+	"github.com/lastfm-scrobbler/model"
+	"github.com/lastfm-scrobbler/scrobbler"
 )
 
 // NewSyncRecordsCommand returns a new sync records command

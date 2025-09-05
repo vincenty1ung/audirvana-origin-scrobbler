@@ -10,9 +10,9 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/audirvana-origin-scrobbler/config"
-	"github.com/audirvana-origin-scrobbler/log"
-	"github.com/audirvana-origin-scrobbler/telemetry"
+	"github.com/lastfm-scrobbler/config"
+	"github.com/lastfm-scrobbler/log"
+	"github.com/lastfm-scrobbler/telemetry"
 )
 
 func setupTestDB(t *testing.T) *gorm.DB {

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/audirvana-origin-scrobbler/audirvana"
-	"github.com/audirvana-origin-scrobbler/common"
+	"github.com/lastfm-scrobbler/audirvana"
+	"github.com/lastfm-scrobbler/common"
 )
 
 // mockLastfm a mock implementation of the Last.fm API for testing.

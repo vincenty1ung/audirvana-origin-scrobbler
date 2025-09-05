@@ -8,12 +8,12 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/audirvana-origin-scrobbler/audirvana"
-	"github.com/audirvana-origin-scrobbler/common"
-	"github.com/audirvana-origin-scrobbler/exec"
-	alog "github.com/audirvana-origin-scrobbler/log"
-	"github.com/audirvana-origin-scrobbler/model"
-	"github.com/audirvana-origin-scrobbler/telemetry"
+	"github.com/lastfm-scrobbler/audirvana"
+	"github.com/lastfm-scrobbler/common"
+	"github.com/lastfm-scrobbler/exec"
+	alog "github.com/lastfm-scrobbler/log"
+	"github.com/lastfm-scrobbler/model"
+	"github.com/lastfm-scrobbler/telemetry"
 )
 
 const (

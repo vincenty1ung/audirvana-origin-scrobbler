@@ -10,9 +10,9 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"github.com/audirvana-origin-scrobbler/config"
-	"github.com/audirvana-origin-scrobbler/log"
-	"github.com/audirvana-origin-scrobbler/model"
+	"github.com/lastfm-scrobbler/config"
+	"github.com/lastfm-scrobbler/log"
+	"github.com/lastfm-scrobbler/model"
 )
 
 func setupRouter(name string) *gin.Engine {

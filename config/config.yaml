@@ -1,5 +1,5 @@
 lastfm:
-  applicationName: "audirvana-origin-scrobbler"
+  applicationName: "lastfm-scrobbler"
   apiKey: ""
   sharedSecret: ""
   registeredTo: ""
@@ -11,7 +11,7 @@ musixmatch:
   apiKey: ""
 
 log:
-  path: "logs/go_audirvana-origin-scrobbler.log"
+  path: "logs/go_lastfm-scrobbler.log"
   level: "info"
 
 database:
@@ -21,4 +21,4 @@ http:
   port: "8080"
 
 telemetry:
-  name: "audirvana-origin-scrobbler"
+  name: "lastfm-scrobbler"

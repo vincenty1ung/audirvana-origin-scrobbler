@@ -11,8 +11,8 @@ import (
 	"github.com/shkh/lastfm-go/lastfm"
 	"go.uber.org/zap"
 
-	"github.com/audirvana-origin-scrobbler/common"
-	alog "github.com/audirvana-origin-scrobbler/log"
+	"github.com/lastfm-scrobbler/common"
+	alog "github.com/lastfm-scrobbler/log"
 )
 
 var (

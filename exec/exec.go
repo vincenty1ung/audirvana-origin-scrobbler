@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cast"
 	"go.uber.org/zap"
 
-	alog "github.com/audirvana-origin-scrobbler/log"
+	alog "github.com/lastfm-scrobbler/log"
 )
 
 const (
