@@ -9,11 +9,11 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	oteltrace "go.opentelemetry.io/otel/trace"
 
-	"github.com/lastfm-scrobbler/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
 )
 
 const (
-	_TracerName = "github.com/lastfm-scrobbler/db_trace"
+	_TracerName = "github.com/vincenty1ung/lastfm-scrobbler/db_trace"
 )
 
 const spanName = "sql"

@@ -15,7 +15,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"github.com/lastfm-scrobbler/config"
+	"github.com/vincenty1ung/lastfm-scrobbler/config"
 )
 
 const (

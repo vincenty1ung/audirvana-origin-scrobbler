@@ -1,5 +1,5 @@
 package scrobbler
 
 const (
-	_TracerName = "github.com/lastfm-scrobbler/scrobbler_trace"
+	_TracerName = "github.com/vincenty1ung/lastfm-scrobbler/scrobbler_trace"
 )

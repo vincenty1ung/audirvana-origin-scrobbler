@@ -1,4 +1,4 @@
-module github.com/lastfm-scrobbler
+module github.com/vincenty1ung/lastfm-scrobbler
 
 go 1.24
 

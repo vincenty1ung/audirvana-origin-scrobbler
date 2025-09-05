@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/lastfm-scrobbler/config"
-	"github.com/lastfm-scrobbler/model"
-	"github.com/lastfm-scrobbler/scrobbler"
+	"github.com/vincenty1ung/lastfm-scrobbler/config"
+	"github.com/vincenty1ung/lastfm-scrobbler/model"
+	"github.com/vincenty1ung/lastfm-scrobbler/scrobbler"
 )
 
 // NewSyncRecordsCommand returns a new sync records command

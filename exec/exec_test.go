@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-audio/wav"
 
-	"github.com/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/log"
 )
 
 func init() {

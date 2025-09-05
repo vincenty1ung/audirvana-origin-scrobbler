@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/log"
 )
 
 var GlobalDB *gorm.DB

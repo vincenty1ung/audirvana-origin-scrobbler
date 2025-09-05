@@ -7,8 +7,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/lastfm-scrobbler/config"
-	"github.com/lastfm-scrobbler/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/config"
+	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
 )
 
 func TInit() {

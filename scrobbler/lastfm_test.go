@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lastfm-scrobbler/config"
-	"github.com/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/config"
+	"github.com/vincenty1ung/lastfm-scrobbler/log"
 )
 
 func init() {

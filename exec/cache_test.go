@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/lastfm-scrobbler/audirvana"
-	"github.com/lastfm-scrobbler/common"
+	"github.com/vincenty1ung/lastfm-scrobbler/audirvana"
+	"github.com/vincenty1ung/lastfm-scrobbler/common"
 )
 
 func TestFindMataDataHandleCache(t *testing.T) {

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	alog "github.com/lastfm-scrobbler/log"
+	alog "github.com/vincenty1ung/lastfm-scrobbler/log"
 	"go.uber.org/zap"
 
-	"github.com/lastfm-scrobbler/common"
+	"github.com/vincenty1ung/lastfm-scrobbler/common"
 )
 
 func init() {

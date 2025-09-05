@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/lastfm-scrobbler/memory"
 	"github.com/spf13/cobra"
+	"github.com/vincenty1ung/lastfm-scrobbler/memory"
 )
 
 // NewMemoryToolCommand returns a new memory tool command

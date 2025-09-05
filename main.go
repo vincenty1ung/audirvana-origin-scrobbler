@@ -8,14 +8,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/lastfm-scrobbler/api"
-	"github.com/lastfm-scrobbler/cmd"
-	"github.com/lastfm-scrobbler/conf
-	"github.com/lastfm-scrobbler/log"
-	"github.com/lastfm-scrobbler/model"
-l"
-	"github.com/lastfm-scrobbler/scrobbl
-	"github.com/lastfm-scrobbler/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/api"
+	"github.com/vincenty1ung/lastfm-scrobbler/cmd"
+	"github.com/vincenty1ung/lastfm-scrobbler/config"
+	"github.com/vincenty1ung/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/model"
+	"github.com/vincenty1ung/lastfm-scrobbler/scrobbler"
+	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
 )
 
 var (
