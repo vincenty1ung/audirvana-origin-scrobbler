@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
@@ -58,41 +58,58 @@
             border-radius: 50%;
             margin-right: 15px;
         }
+        /* 并列显示 */
+        .report-sections {
+            display: flex;
+            gap: 30px;
+        }
+        .report-section {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .report-sections {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎵 音乐偏好分析报告</h1>
-        
         <div class="section">
             <h2 class="section-title">统计概览</h2>
             <p>总曲目数: <strong>{{.TotalTracks}}</strong></p>
         </div>
         
-        <div class="section">
-            <h2 class="section-title">播放次数最多的曲目</h2>
-            {{range $index, $track := .TopTracks}}
-            <div class="track-item">
-                <div class="track-info">
-                    <span class="rank">{{$index | addOne}}</span>
-                    {{$track.Artist}} - {{$track.Album}} - {{$track.Track}}
+        <div class="report-sections">
+            <div class="report-section">
+                <div class="section">
+                    <h2 class="section-title">播放次数最多的曲目</h2>
+                    {{range $index, $track := .TopTracks}}
+                    <div class="track-item">
+                        <div class="track-info">
+                            <span class="rank">{{$index | addOne}}</span>
+                            {{$track.Artist}} - {{$track.Album}} - {{$track.Track}}
+                        </div>
+                        <div class="play-count">播放次数: {{$track.PlayCount}}</div>
+                    </div>
+                    {{end}}
                 </div>
-                <div class="play-count">播放次数: {{$track.PlayCount}}</div>
             </div>
-            {{end}}
-        </div>
-        
-        <div class="section">
-            <h2 class="section-title">最近播放的曲目</h2>
-            {{range $index, $record := .RecentRecords}}
-            <div class="track-item">
-                <div class="track-info">
-                    <span class="rank">{{$index | addOne}}</span>
-                    {{$record.Artist}} - {{$record.Album}} - {{$record.Track}}
+            
+            <div class="report-section">
+                <div class="section">
+                    <h2 class="section-title">最近播放的曲目</h2>
+                    {{range $index, $record := .RecentRecords}}
+                    <div class="track-item">
+                        <div class="track-info">
+                            <span class="rank">{{$index | addOne}}</span>
+                            {{$record.Artist}} - {{$record.Album}} - {{$record.Track}}
+                        </div>
+                        <div>播放时间: {{$record.PlayTime.Format "2006-01-02 15:04:05"}}</div>
+                    </div>
+                    {{end}}
                 </div>
-                <div>播放时间: {{$record.PlayTime.Format "2006-01-02 15:04:05"}}</div>
             </div>
-            {{end}}
         </div>
     </div>
 </body>

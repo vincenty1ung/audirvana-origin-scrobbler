@@ -3,6 +3,7 @@ package scrobbler
 import (
 	"context"
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -14,8 +15,9 @@ import (
 	"github.com/vincenty1ung/lastfm-scrobbler/core/lastfm"
 	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
 	"github.com/vincenty1ung/lastfm-scrobbler/core/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/websocket"
 	"github.com/vincenty1ung/lastfm-scrobbler/internal/logic/track"
-	model2 "github.com/vincenty1ung/lastfm-scrobbler/internal/model"
+	"github.com/vincenty1ung/lastfm-scrobbler/internal/model"
 )
 
 const (
@@ -23,15 +25,19 @@ const (
 	defaultSleep    = 3
 	longSleep       = 60 // 休眠间隔六十秒
 	checkCount      = 100
+	cAudirvana      = "audirvana"
+	cRoon           = "roon"
 )
 
 var (
-	newTrackService = track.NewTrackService()
-	maped           = make(map[string]bool)
-	maped2          = make(map[string]bool)
-	pushCount       = atomic.Uint32{} // 多渠道上报
-	isLong          bool
-	isLong2         bool
+	newTrackService     = track.NewTrackService()
+	maped               = make(map[string]bool)
+	maped2              = make(map[string]bool)
+	pushCount           = atomic.Uint32{} // 多渠道上报
+	atomicPlaying       = atomic.Bool{}   // 并发播放状态
+	isLong              bool
+	isLong2             bool
+	currentPlayingCache = sync.Map{} // 本地缓存当前播放信息
 )
 
 func Init(
@@ -56,7 +62,7 @@ func AudirvanaCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 		previousTrack = ""
 		tmpCount      = 0
 	)
-	counts, err := model2.GetTrackCounts(ctx)
+	counts, err := model.GetTrackCounts(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -101,6 +107,21 @@ func AudirvanaCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 						}
 						tmpCount = 0
 						audirvanaTrackInfo = audirvana.GetNowPlayingTrackInfo(checkCtx)
+					} else {
+						if _, ok := currentPlayingCache.Load(cAudirvana); ok {
+							currentPlayingCache.Delete(cAudirvana)
+							_, aok := currentPlayingCache.Load(cRoon)
+							if !aok {
+								websocket.BroadcastMessage(
+									checkCtx,
+									&websocket.WsTrackInfo{
+										Type:   "stop",
+										Source: cAudirvana,
+									},
+								)
+								atomicPlaying.Store(false)
+							}
+						}
 					}
 				}
 				if audirvanaTrackInfo != nil {
@@ -108,6 +129,27 @@ func AudirvanaCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 					currentTrack = tmpTrack
 					position := audirvanaTrackInfo.Position
 					duration := audirvanaTrackInfo.Duration
+					wti := &websocket.WsTrackInfo{
+						Type:   "now_playing",
+						Source: cAudirvana,
+						Data: struct {
+							Title  string `json:"title"`
+							Album  string `json:"album"`
+							Artist string `json:"artist"`
+						}{
+							audirvanaTrackInfo.Title,
+							audirvanaTrackInfo.Album,
+							audirvanaTrackInfo.Artist,
+						},
+					}
+					// 将播放信息写入本地缓存
+					currentPlayingCache.Store("audirvana", wti)
+					atomicPlaying.Store(true)
+					// 向WebSocket客户端广播播放信息
+					websocket.BroadcastMessage(
+						checkCtx,
+						wti,
+					)
 					if position/float64(duration) > percentScrobble && !maped[currentTrack] {
 						// 标记听歌完成
 						pushTrackScrobbleReq := &lastfm.PushTrackScrobbleReq{
@@ -137,7 +179,7 @@ func AudirvanaCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 							return
 						}
 						// Save to database
-						record := &model2.TrackPlayRecord{
+						record := &model.TrackPlayRecord{
 							Artist:        pushTrackScrobbleReq.Artist,
 							AlbumArtist:   pushTrackScrobbleReq.AlbumArtist,
 							Track:         pushTrackScrobbleReq.Track,
@@ -255,6 +297,21 @@ func RoonCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 						}
 						tmpCount = 0
 						roonTrackInfo = playing
+					} else {
+						if _, ok := currentPlayingCache.Load(cRoon); ok {
+							currentPlayingCache.Delete(cRoon)
+							_, aok := currentPlayingCache.Load(cAudirvana)
+							if !aok {
+								websocket.BroadcastMessage(
+									checkCtx,
+									&websocket.WsTrackInfo{
+										Type:   "stop",
+										Source: cRoon,
+									},
+								)
+								atomicPlaying.Store(false)
+							}
+						}
 					}
 				}
 				if roonTrackInfo != nil {
@@ -262,6 +319,28 @@ func RoonCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 					currentTrack = tmpTrack
 					position := roonTrackInfo.ElapsedTime
 					duration := roonTrackInfo.Duration
+
+					// 将播放信息写入本地缓存
+					wti := &websocket.WsTrackInfo{
+						Type:   "now_playing",
+						Source: "roon",
+						Data: struct {
+							Title  string `json:"title"`
+							Album  string `json:"album"`
+							Artist string `json:"artist"`
+						}{
+							roonTrackInfo.Title,
+							roonTrackInfo.Album,
+							roonTrackInfo.Artist,
+						},
+					}
+					// 向WebSocket客户端广播播放信息
+					currentPlayingCache.Store(cRoon, wti)
+					atomicPlaying.Store(true)
+					websocket.BroadcastMessage(
+						checkCtx,
+						wti,
+					)
 					if position/float64(duration) > percentScrobble && !maped2[currentTrack] {
 						// 标记听歌完成
 						pushTrackScrobbleReq := &lastfm.PushTrackScrobbleReq{
@@ -279,7 +358,7 @@ func RoonCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 							return
 						}
 						// Save to database
-						record := &model2.TrackPlayRecord{
+						record := &model.TrackPlayRecord{
 							Artist:        pushTrackScrobbleReq.Artist,
 							AlbumArtist:   pushTrackScrobbleReq.AlbumArtist,
 							Track:         pushTrackScrobbleReq.Track,
@@ -295,7 +374,7 @@ func RoonCheckPlayingTrack(ctx context.Context, stop <-chan struct{}) {
 							log.Warn(checkCtx, "Failed to insert track play record", zap.Error(err))
 						}
 						// Update track play count
-						if err := model2.IncrementTrackPlayCount(
+						if err := newTrackService.IncrementTrackPlayCount(
 							checkCtx, record.Artist, record.Album, record.Track,
 						); err != nil {
 							log.Warn(checkCtx, "Failed to increment track play count", zap.Error(err))

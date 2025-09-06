@@ -6,6 +6,7 @@ require (
 	github.com/andybrewer/mack v0.0.0-20220307193339-22e922cc18af
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-audio/wav v1.1.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/milindmadhukar/go-musixmatch v1.2.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0

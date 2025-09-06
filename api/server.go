@@ -15,6 +15,7 @@ import (
 
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
 	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/websocket"
 	"github.com/vincenty1ung/lastfm-scrobbler/internal/logic/analysis"
 	"github.com/vincenty1ung/lastfm-scrobbler/internal/logic/track"
 	"github.com/vincenty1ung/lastfm-scrobbler/internal/model"
@@ -243,6 +244,22 @@ func setupRouter(name string) *gin.Engine {
 			}
 		},
 	)
+
+	// WebSocket endpoint
+	r.GET("/ws", func(c *gin.Context) {
+		// 升级HTTP连接到WebSocket连接
+		conn, err := websocket.UpgradeConnection(c.Writer, c.Request)
+		if err != nil {
+			log.Error(c.Request.Context(), "Failed to upgrade to WebSocket", zap.Error(err))
+			return
+		}
+
+		// 添加连接到连接池
+		websocket.AddClient(conn)
+
+		// 启动goroutine处理WebSocket消息
+		go websocket.HandleWebSocketMessages(conn)
+	})
 
 	return r
 }

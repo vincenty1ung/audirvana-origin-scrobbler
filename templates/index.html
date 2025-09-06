@@ -124,22 +124,96 @@
             background-color: #fadbd8;
             border-radius: 5px;
         }
+        /* 实时播放信息悬浮窗 */
+        #nowPlaying {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            z-index: 1000;
+            display: none;
+        }
+        #nowPlaying h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        #nowPlayingInfo {
+            margin-top: 10px;
+        }
+        .track-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .track-album {
+            font-size: 1.0em;
+            color: #2c3e50;
+        }
+        .track-artist {
+            color: #7f8c8d;
+            margin: 5px 0;
+        }
+        .track-source {
+            font-size: 0.9em;
+            color: #3498db;
+            background-color: #e1f0fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        /* 并列显示 */
+        .report-sections {
+            display: flex;
+            gap: 20px;
+        }
+        .report-section {
+            flex: 1;
+        }
+        @media (max-width: 768px) {
+            .report-sections {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- 实时播放信息悬浮窗 -->
+    <div id="nowPlaying">
+        <h3>正在播放</h3>
+        <div id="nowPlayingInfo">
+            <div class="track-title" id="trackTitle"></div>
+            <div class="track-album" id="trackAlbum"></div>
+            <div class="track-artist" id="trackArtist"></div>
+            <div class="track-source" id="trackSource"></div>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>🎵 音乐播放统计系统</h1>
+        <h1>音乐播放统计系统</h1>
         
         <!-- Tab导航 -->
         <div class="tab">
-            <button class="tablinks active" onclick="openTab(event, 'playCounts')">播放统计</button>
+            <button class="tablinks active" onclick="openTab(event, 'report')">偏好分析报告</button>
+            <button class="tablinks" onclick="openTab(event, 'playCounts')">播放统计</button>
             <button class="tablinks" onclick="openTab(event, 'recommendations')">音乐推荐</button>
-            <button class="tablinks" onclick="openTab(event, 'report')">偏好分析报告</button>
+        </div>
+        
+        <!-- 偏好分析报告页面 -->
+        <div id="report" class="tabcontent active">
+            <div id="reportContent">
+                <div class="loading">加载中...</div>
+            </div>
         </div>
         
         <!-- 播放统计页面 -->
-        <div id="playCounts" class="tabcontent active">
-            <h2>曲目播放统计</h2>
+        <div id="playCounts" class="tabcontent">
             <div id="playCountsContent">
                 <div class="loading">加载中...</div>
             </div>
@@ -147,22 +221,69 @@
         
         <!-- 音乐推荐页面 -->
         <div id="recommendations" class="tabcontent">
-            <h2>音乐推荐</h2>
             <div id="recommendationsContent">
-                <div class="loading">加载中...</div>
-            </div>
-        </div>
-        
-        <!-- 偏好分析报告页面 -->
-        <div id="report" class="tabcontent">
-            <h2>音乐偏好分析报告</h2>
-            <div id="reportContent">
                 <div class="loading">加载中...</div>
             </div>
         </div>
     </div>
 
     <script>
+        // WebSocket连接
+        let ws = null;
+        
+        // 连接到WebSocket服务器
+        function connectWebSocket() {
+            // 创建WebSocket连接
+            ws = new WebSocket("ws://" + window.location.host + "/ws");
+            
+            // 连接打开时的处理
+            ws.onopen = function(event) {
+                console.log("WebSocket连接已建立");
+            };
+            
+            // 收到消息时的处理
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === "now_playing") {
+                    // 更新正在播放的信息
+                    updateNowPlaying(data.source, data.data);
+                }else {
+                    document.getElementById("nowPlaying").style.display = "none";
+                }
+            };
+            
+            // 连接关闭时的处理
+            ws.onclose = function(event) {
+                console.log("WebSocket连接已关闭");
+                // 5秒后尝试重新连接
+                setTimeout(connectWebSocket, 5000);
+            };
+            
+            // 连接错误时的处理
+            ws.onerror = function(error) {
+                console.log("WebSocket连接出错:", error);
+            };
+        }
+        
+        // 更新正在播放的信息
+        function updateNowPlaying(source, data) {
+            // 显示悬浮窗
+            document.getElementById("nowPlaying").style.display = "block";
+            
+            // 根据来源更新信息
+            if (source === "audirvana") {
+                document.getElementById("trackTitle").textContent = data.title;
+                document.getElementById("trackAlbum").textContent = data.album;
+                document.getElementById("trackArtist").textContent = data.artist;
+                document.getElementById("trackSource").textContent = "Audirvana";
+            } else if (source === "roon") {
+                document.getElementById("trackTitle").textContent = data.title;
+                document.getElementById("trackAlbum").textContent = data.album;
+                document.getElementById("trackArtist").textContent = data.artist;
+                document.getElementById("trackSource").textContent = "Roon";
+            }
+        }
+        
         // Tab切换功能
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
@@ -178,14 +299,14 @@
             evt.currentTarget.classList.add("active");
             
             // 首次点击时加载数据
-            if (tabName === 'playCounts' && document.getElementById(tabName).dataset.loaded !== 'true') {
+            if (tabName === 'report' && document.getElementById(tabName).dataset.loaded !== 'true') {
+                loadReport();
+                document.getElementById(tabName).dataset.loaded = 'true';
+            } else if (tabName === 'playCounts' && document.getElementById(tabName).dataset.loaded !== 'true') {
                 loadPlayCounts();
                 document.getElementById(tabName).dataset.loaded = 'true';
             } else if (tabName === 'recommendations' && document.getElementById(tabName).dataset.loaded !== 'true') {
                 loadRecommendations();
-                document.getElementById(tabName).dataset.loaded = 'true';
-            } else if (tabName === 'report' && document.getElementById(tabName).dataset.loaded !== 'true') {
-                loadReport();
                 document.getElementById(tabName).dataset.loaded = 'true';
             }
         }
@@ -238,8 +359,11 @@
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 默认加载第一个tab的数据
-            loadPlayCounts();
-            document.getElementById('playCounts').dataset.loaded = 'true';
+            loadReport();
+            document.getElementById('report').dataset.loaded = 'true';
+            
+            // 连接到WebSocket服务器
+            connectWebSocket();
         });
     </script>
 </body>
