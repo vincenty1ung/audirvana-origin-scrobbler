@@ -104,3 +104,39 @@ func GetTrackPlayCount(ctx context.Context, artist, album, track string) (*Track
 	}
 	return &record, nil
 }
+
+// GetAllTrackPlayCounts 获取所有播放统计记录
+func GetAllTrackPlayCounts(ctx context.Context) ([]*TrackPlayCount, error) {
+	var allTracks []*TrackPlayCount
+	pageSize := 100
+	offset := 0
+	
+	for {
+		var tracks []*TrackPlayCount
+		err := GetDB().WithContext(ctx).Order("play_count DESC").Limit(pageSize).Offset(offset).Find(&tracks).Error
+		if err != nil {
+			return nil, err
+		}
+		
+		allTracks = append(allTracks, tracks...)
+		
+		// 如果返回的记录数少于pageSize，说明已经获取完所有记录
+		if len(tracks) < pageSize {
+			break
+		}
+		
+		offset += pageSize
+	}
+	
+	return allTracks, nil
+}
+
+// GetTracksByArtist 获取特定艺术家的所有曲目
+func GetTracksByArtist(ctx context.Context, artist string) ([]*TrackPlayCount, error) {
+	var tracks []*TrackPlayCount
+	err := GetDB().WithContext(ctx).Where("artist LIKE ?", "%"+artist+"%").Find(&tracks).Error
+	if err != nil {
+		return nil, err
+	}
+	return tracks, nil
+}

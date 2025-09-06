@@ -39,3 +39,13 @@ func GetUnscrobbledRecords(ctx context.Context, limit int) ([]*TrackPlayRecord, 
 	}
 	return trackPlayRecords, nil
 }
+
+// GetRecentPlayRecords 获取最近播放的记录
+func GetRecentPlayRecords(ctx context.Context, limit int) ([]*TrackPlayRecord, error) {
+	var records []*TrackPlayRecord
+	err := GetDB().WithContext(ctx).Order("play_time DESC").Limit(limit).Find(&records).Error
+	if err != nil {
+		return nil, err
+	}
+	return records, nil
+}

@@ -40,6 +40,9 @@ func main() {
 	// Add memory-tool subcommand
 	rootCmd.AddCommand(newMemoryToolCommand())
 
+	// Add music-analysis subcommand
+	rootCmd.AddCommand(cmd.NewMusicAnalysisCommand())
+
 	cobra.CheckErr(rootCmd.Execute())
 }
 
