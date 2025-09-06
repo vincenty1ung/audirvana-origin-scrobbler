@@ -8,6 +8,7 @@
 2. **播放记录追踪**: 记录每次播放的详细信息，包括艺术家、专辑、曲目、播放时间等。
 3. **播放统计**: 统计每首曲目的播放次数，使用乐观锁机制保证并发安全。
 4. **数据同步**: 将未同步到 Last.fm 的播放记录进行同步，并标记同步状态。
+5. **实时播放信息推送**: 通过 WebSocket 实现实时推送当前播放信息到前端页面。
 
 ## 主要技术栈
 
@@ -22,6 +23,7 @@
   - `github.com/shkh/lastfm-go` - Last.fm API 客户端
   - `github.com/milindmadhukar/go-musixmatch` - Musixmatch API 客户端 (当前被注释)
   - `github.com/andybrewer/mack` - AppleScript 执行
+  - `github.com/gorilla/websocket` - WebSocket 支持
   - `gorm.io/gorm` - ORM 框架
   - `gorm.io/driver/sqlite` - SQLite 驱动
   - `go.opentelemetry.io/otel` - OpenTelemetry SDK
@@ -40,6 +42,7 @@
   - `core/musixmatch/`: Musixmatch API 客户端封装
   - `core/roon/`: 与 Roon 应用交互的模块
   - `core/telemetry/`: 链路跟踪模块，集成 OpenTelemetry 实现分布式追踪
+  - `core/websocket/`: WebSocket 模块，处理实时消息推送
 - `internal/`: 业务逻辑目录
   - `internal/logic/`: 业务逻辑实现
   - `internal/model/`: 数据模型和数据库操作模块，使用 GORM 实现
@@ -100,6 +103,26 @@
 ### 播放统计
 
 在 `internal/model/track_play_count.go` 中实现播放次数的增加和查询功能，使用乐观锁机制处理并发更新。
+
+### WebSocket实时播放信息推送
+
+在 `core/websocket/websocket.go` 中实现 WebSocket 服务端功能，包括：
+- WebSocket 连接管理（连接池）
+- 消息广播机制
+- 连接生命周期管理
+
+在 `internal/scrobbler/track_check_playing.go` 中实现：
+- 当获取到 Audirvana 或 Roon 的播放信息时，实时向所有连接的客户端推送消息
+- 消息格式包含播放信息类型、数据来源和具体数据
+
+在 `api/server.go` 中实现：
+- WebSocket 端点 `/ws`，用于客户端连接
+- 连接处理和消息转发
+
+在 `templates/index.html` 中实现：
+- WebSocket 客户端连接
+- 实时播放信息展示（页面右上角悬浮窗）
+- 连接断开后的自动重连机制
 
 # 构建和运行
 
