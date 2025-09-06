@@ -35,7 +35,13 @@
       - 歌曲的播放时长或进度是否达到了 Last.fm 规定的 Scrobble 阈值(通常是播放一半或超过 4 分钟)?
     - 当满足所有 Scrobble 条件后,程序会调用 `github.com/shkh/lastfm-go` 库,使用用户的凭据,将这首歌曲的信息发送到 Last.fm 的服务器。
 
-5.  **后台运行**:
+5.  **实时播放信息推送**:
+
+    - 程序通过 WebSocket 实时推送当前播放信息到前端页面。
+    - 当获取到 Audirvana 或 Roon 的播放信息时,会实时向所有连接的客户端推送消息。
+    - 用户可以通过 Web 界面实时查看当前正在播放的音乐信息。
+
+6.  **后台运行**:
     - 整个程序被设计为一个守护进程(Daemon)。它会安静地在后台运行,直到接收到系统中断信号 (如 `Ctrl+C` 或关机命令) 时才会优雅地退出。
     - 项目内的 `shell/` 目录和 `.plist` 文件提供了完整的解决方案,用于通过 macOS 的 `launchd` 服务来管理程序的启停,实现开机自启和稳定运行。
 
@@ -131,7 +137,8 @@ musixmatch:
 │   ├── log/                 # 日志模块
 │   ├── musixmatch/          # Musixmatch API 客户端封装
 │   ├── roon/                # 与 Roon 应用交互的模块
-│   └── telemetry/           # 链路跟踪模块
+│   ├── telemetry/           # 链路跟踪模块
+│   └── websocket/           # WebSocket 模块，处理实时消息推送
 ├── internal/                # 业务逻辑目录
 │   ├── logic/               # 业务逻辑实现
 │   ├── model/               # 数据模型和数据库操作模块
@@ -170,3 +177,10 @@ musixmatch:
 - 新增 `cmd/analysis_cmd.go` 实现分析报告命令
 - 提供播放统计、推荐曲目等分析功能
 - 通过Web界面展示分析结果
+
+### 5.5 WebSocket实时播放信息推送
+- 实现了 WebSocket 服务端功能，支持实时推送当前播放信息
+- 在 `core/websocket/` 目录中实现 WebSocket 连接管理和消息广播机制
+- 在 `internal/scrobbler/track_check_playing.go` 中集成实时信息推送功能
+- 在 `templates/index.html` 中实现前端 WebSocket 客户端和实时播放信息展示
+- 用户可以通过 Web 界面实时查看 Audirvana 或 Roon 正在播放的音乐信息
