@@ -36,7 +36,7 @@
 - `log/`: 日志模块，基于 Zap 实现。
 - `model/`: 数据模型和数据库操作模块，使用 GORM 实现。
 - `shell/`: 包含用于构建、启动和停止服务的 shell 脚本。
-- `storage/`: 本地数据存储目录。
+- `.storage/`: 本地数据存储目录。
 - `telemetry/`: 链路跟踪模块，集成 OpenTelemetry 实现分布式追踪。
 
 ## 数据模型
@@ -126,7 +126,7 @@ sh shell/script/stop_lastfm-scrobblers.sh
 ## 查看日志
 
 ```bash
-tail -f logs/go_lastfm-scrobbler.log
+tail -f .logs/go_lastfm-scrobbler.log
 ```
 
 # 开发约定

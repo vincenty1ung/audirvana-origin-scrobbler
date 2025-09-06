@@ -5,13 +5,14 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/vincenty1ung/lastfm-scrobbler/cmd/analysis"
-	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
-	"github.com/vincenty1ung/lastfm-scrobbler/model"
-	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
+
+	"github.com/vincenty1ung/lastfm-scrobbler/cmd/analysis"
+	"github.com/vincenty1ung/lastfm-scrobbler/config"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/internal/model"
 )
 
 func NewMusicAnalysisCommand() *cobra.Command {
@@ -30,9 +31,11 @@ func NewMusicAnalysisCommand() *cobra.Command {
 // initTracing 初始化链路跟踪
 func initTracing(ctx context.Context, operation string) (context.Context, trace.Span) {
 	// 初始化OpenTelemetry链路跟踪
-	if err := telemetry.Init(config.TelemetryConfig{
-		Name: "lastfm-scrobbler-analysis",
-	}); err != nil {
+	if err := telemetry.Init(
+		config.TelemetryConfig{
+			Name: "lastfm-scrobbler-analysis",
+		},
+	); err != nil {
 		log.Error(ctx, "Failed to initialize telemetry", zap.Error(err))
 		return ctx, nil
 	}

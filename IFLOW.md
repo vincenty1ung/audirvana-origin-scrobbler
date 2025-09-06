@@ -30,14 +30,25 @@
 
 - `main.go`: 程序入口，使用 Cobra 设置命令行参数并启动服务。
 - `config/`: 配置管理模块，使用 Viper 解析 `config.yaml`。
-- `scrobbler/`: 核心逻辑模块，负责检查播放状态、获取曲目信息、与 Last.fm 交互。
-- `audirvana/`: 与 Audirvana 应用交互的模块，通过 AppleScript 获取播放信息。
-- `roon/`: 与 Roon 应用交互的模块 (具体实现未在本次分析中详细查看)。
-- `log/`: 日志模块，基于 Zap 实现。
-- `model/`: 数据模型和数据库操作模块，使用 GORM 实现。
-- `shell/`: 包含用于构建、启动和停止服务的 shell 脚本。
-- `storage/`: 本地数据存储目录。
-- `telemetry/`: 链路跟踪模块，集成 OpenTelemetry 实现分布式追踪。
+- `core/`: 核心模块目录
+  - `core/applesciprt/`: AppleScript 执行模块
+  - `core/audirvana/`: 与 Audirvana 应用交互的模块，通过 AppleScript 获取播放信息
+  - `core/db/`: 数据库连接和初始化模块
+  - `core/exec/`: 执行模块，包括元数据处理缓存
+  - `core/lastfm/`: Last.fm API 客户端封装
+  - `core/log/`: 日志模块，基于 Zap 实现
+  - `core/musixmatch/`: Musixmatch API 客户端封装
+  - `core/roon/`: 与 Roon 应用交互的模块
+  - `core/telemetry/`: 链路跟踪模块，集成 OpenTelemetry 实现分布式追踪
+- `internal/`: 业务逻辑目录
+  - `internal/logic/`: 业务逻辑实现
+  - `internal/model/`: 数据模型和数据库操作模块，使用 GORM 实现
+  - `internal/scrobbler/`: 核心逻辑模块，负责检查播放状态、获取曲目信息、与 Last.fm 交互
+- `cmd/`: 命令行接口实现
+- `shell/`: 包含用于构建、启动和停止服务的 shell 脚本
+- `templates/`: Web界面模板文件
+- `.storage/`: 本地数据存储目录
+- `memory/`: 特性清单和记忆文件目录
 
 ## 数据模型
 
@@ -76,19 +87,19 @@
 
 ### 数据库初始化
 
-在 `model/db.go` 中实现数据库连接和初始化，使用自定义日志记录器集成 zap 和 OpenTelemetry。
+在 `core/db/db.go` 中实现数据库连接和初始化，使用自定义日志记录器集成 zap 和 OpenTelemetry。
 
 ### 链路跟踪
 
-在 `telemetry/telemetry.go` 中实现 OpenTelemetry 的初始化和配置，包括 tracer provider 和 exporter 的设置。在各个关键模块中创建 span 来跟踪请求和操作的执行过程。
+在 `core/telemetry/telemetry.go` 中实现 OpenTelemetry 的初始化和配置，包括 tracer provider 和 exporter 的设置。在各个关键模块中创建 span 来跟踪请求和操作的执行过程。
 
 ### 播放记录存储
 
-在 `model/track_play_record.go` 中实现播放记录的插入、更新和查询功能。
+在 `internal/model/track_play_record.go` 中实现播放记录的插入、更新和查询功能。
 
 ### 播放统计
 
-在 `model/track_play_count.go` 中实现播放次数的增加和查询功能，使用乐观锁机制处理并发更新。
+在 `internal/model/track_play_count.go` 中实现播放次数的增加和查询功能，使用乐观锁机制处理并发更新。
 
 # 构建和运行
 
@@ -126,7 +137,7 @@ sh shell/script/stop_lastfm-scrobblers.sh
 ## 查看日志
 
 ```bash
-tail -f logs/go_lastfm-scrobbler.log
+tail -f .logs/go_lastfm-scrobbler.log
 ```
 
 # 开发约定

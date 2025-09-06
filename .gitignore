@@ -1,7 +1,9 @@
-/audirvana/logs/
-/logs/go_lastfm-scrobbler.log
-/exec/logs/
+/core/audirvana/.logs/
+/.logs/go_lastfm-scrobbler.log
+/core/exec/.logs/
 /shell/bin/lastfm-scrobbler
 /config/config_bak.yaml
-/scrobbler/logs/
-/logs/
+/internal/scrobbler/.logs/
+/.logs/
+/.storage/
+/shell/bin/nowplaying-cli-mac

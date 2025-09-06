@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/model"
-	"github.com/vincenty1ung/lastfm-scrobbler/scrobbler"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/lastfm"
+	"github.com/vincenty1ung/lastfm-scrobbler/internal/model"
 )
 
 // NewSyncRecordsCommand returns a new sync records command
@@ -48,7 +48,7 @@ func syncRecords(cmd *cobra.Command, args []string) error {
 
 	// Sync records to Last.fm
 	for _, record := range records {
-		req := &scrobbler.PushTrackScrobbleReq{
+		req := &lastfm.PushTrackScrobbleReq{
 			Artist:             record.Artist,
 			AlbumArtist:        record.AlbumArtist,
 			Track:              record.Track,
@@ -59,7 +59,7 @@ func syncRecords(cmd *cobra.Command, args []string) error {
 			TrackNumber:        record.TrackNumber,
 		}
 
-		_, err := scrobbler.PushTrackScrobble(context.Background(), req)
+		_, err := lastfm.PushTrackScrobble(context.Background(), req)
 		if err != nil {
 			fmt.Printf("Failed to scrobble track %s: %v\n", record.Track, err)
 			continue

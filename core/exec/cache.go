@@ -6,9 +6,8 @@ import (
 	"github.com/vincenty1ung/yeung-go-study/lru"
 	"go.uber.org/zap"
 
-	alog "github.com/vincenty1ung/lastfm-scrobbler/log"
-
 	"github.com/vincenty1ung/lastfm-scrobbler/common"
+	alog "github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
 
 var lruCache = lru.Constructor[string](200)

@@ -89,7 +89,7 @@ function TEST_IF_TRACK_IS_ABOVE_THRESHOLD {
 
 function ECHO_FUNCTION {
 	print -n "\e[0J"   # clear everything after the cursor
-	print "\r[0K  Audirvana Origin: $1\n  Last.fm: $SCROBBLE_MESSAGE" >> ./logs/shell_lastfm-scrobbler.log.log
+	print "\r[0K  Audirvana Origin: $1\n  Last.fm: $SCROBBLE_MESSAGE" >> ./.logs/shell_lastfm-scrobbler.log.log
 	tput cup 4
 }
 
@@ -119,7 +119,7 @@ function SCROBBLE {
 # initiate script
 print "\e[?25l"  # hide cursor
 clear
-print "\n  Audirvana Origin Scrobbler Script $VERSION * Running...\n  =============================================\n"  >> ./logs/shell_lastfm-scrobbler.log.log
+print "\n  Audirvana Origin Scrobbler Script $VERSION * Running...\n  =============================================\n"  >> ./.logs/shell_lastfm-scrobbler.log.log
 
 while true; do
 	if (( AUDIRVANA_IDLE_TIME >= AUDIRVANA_IDLE_THRESHOLD )); then
@@ -143,6 +143,6 @@ while true; do
 			AUDIRVANA_IDLE_TIME=$(( AUDIRVANA_IDLE_TIME + 1))
 		fi
 	fi
-	print "休眠开始时长：$SLEEP_TIME，空闲时间：$AUDIRVANA_IDLE_TIME,空闲阈值：$AUDIRVANA_IDLE_THRESHOLD，长：$LONG_SLEEP_TIME" >> ./logs/shell_lastfm-scrobbler.log.log
+	print "休眠开始时长：$SLEEP_TIME，空闲时间：$AUDIRVANA_IDLE_TIME,空闲阈值：$AUDIRVANA_IDLE_THRESHOLD，长：$LONG_SLEEP_TIME" >> ./.logs/shell_lastfm-scrobbler.log.log
 	sleep "$SLEEP_TIME"
 done

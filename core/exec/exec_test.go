@@ -9,11 +9,11 @@ import (
 
 	"github.com/go-audio/wav"
 
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
 
 func init() {
-	_ = log.LogInit("./logs", "info", make(<-chan struct{}))
+	_ = log.LogInit("./.logs", "info", make(<-chan struct{}))
 }
 
 func TestExecExiftoolHandl(t *testing.T) {

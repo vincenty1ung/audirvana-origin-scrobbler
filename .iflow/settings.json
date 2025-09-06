@@ -7,7 +7,7 @@
         "iflow-mcp_mcp-server-sqlite",
         "mcp-server-sqlite",
         "--db-path",
-        "./storage/tracks.db"
+        "./.storage/tracks.db"
       ]
     }
   }

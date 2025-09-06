@@ -11,11 +11,11 @@ musixmatch:
   apiKey: ""
 
 log:
-  path: "logs/go_lastfm-scrobbler.log"
+  path: ".logs/go_lastfm-scrobbler.log"
   level: "info"
 
 database:
-  path: "storage/tracks.db"
+  path: ".storage/tracks.db"
 
 http:
   port: "8080"

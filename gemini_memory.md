@@ -30,7 +30,7 @@ There are two main ways to run the project:
 
     - Build the binary: `go builastfm-scrobbler
     - Run the executable: `./audirvana-lastfm-scrobbler
-    - Monitor logs: `tail -f logs/go_lastfm-scrobbler.log`
+    - Monitor logs: `tail -f .logs/go_lastfm-scrobbler.log`
 
 2.  **Background Service (Recommended)**:
     - Use the provided shell scripts to manage the `lastfm-scrobbler

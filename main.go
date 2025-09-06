@@ -11,10 +11,10 @@ import (
 	"github.com/vincenty1ung/lastfm-scrobbler/api"
 	"github.com/vincenty1ung/lastfm-scrobbler/cmd"
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
-	"github.com/vincenty1ung/lastfm-scrobbler/model"
-	"github.com/vincenty1ung/lastfm-scrobbler/scrobbler"
-	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/internal/model"
+	"github.com/vincenty1ung/lastfm-scrobbler/internal/scrobbler"
 )
 
 var (
@@ -65,7 +65,12 @@ func initServer() error {
 	if err := telemetry.Init(config.ConfigObj.Telemetry); err != nil {
 		return fmt.Errorf("failed to initialize telemetry: %w", err)
 	}
-	defer telemetry.Shutdown(context.Background())
+	defer func(ctx context.Context) {
+		err := telemetry.Shutdown(ctx)
+		if err != nil {
+			panic(err)
+		}
+	}(context.Background())
 
 	// Initialize database
 	if err := model.InitDB(config.ConfigObj.Database.Path, logger); err != nil {
@@ -75,16 +80,16 @@ func initServer() error {
 	// Start HTTP server in a separate goroutine
 	go api.StartHTTPServer(ctx, config.ConfigObj.Telemetry.Name)
 
-	_ = run(c)
+	_ = scrobblerRun(c)
 	<-ctx.Done()
 	fmt.Println("system exiting")
 	close(c)
 	return nil
 }
 
-func run(c <-chan struct{}) error {
+func scrobblerRun(c <-chan struct{}) error {
 	ctx := context.Background()
-	scrobbler.InitLastfmApi(
+	scrobbler.Init(
 		ctx,
 		config.ConfigObj.Lastfm.ApiKey,
 		config.ConfigObj.Lastfm.SharedSecret,

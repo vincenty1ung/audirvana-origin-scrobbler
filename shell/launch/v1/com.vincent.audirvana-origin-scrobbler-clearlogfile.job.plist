@@ -17,9 +17,9 @@
 	</array>
 
     <key>StandardErrorPath</key>
-    <string>./logs/shell_lastfm-scrobbler.log</string>
+    <string>./.logs/shell_lastfm-scrobbler.log</string>
     <key>StandardOutPath</key>
-    <string>./logs/shell_lastfm-scrobbler.log</string>
+    <string>./.logs/shell_lastfm-scrobbler.log</string>
     <key>WorkingDirectory</key>
     <string>/Users/vincent/Developer/code/other/lastfm-scrobbler/</string>
 	<key>RunAtLoad</key>

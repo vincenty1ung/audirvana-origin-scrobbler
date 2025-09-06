@@ -11,8 +11,6 @@ var (
 	FileExtWav2        = strings.ToUpper(FileExtWav1)
 )
 
-const ()
-
 type PlayerState string
 
 const (

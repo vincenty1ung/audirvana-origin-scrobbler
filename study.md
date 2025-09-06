@@ -62,7 +62,7 @@ lastfm:
   userPassword: your_xxxxword # <-- 替换成你自己的
 
 log:
-  path: ./logs
+  path: ./.logs
   level: info
 
 musixmatch:
@@ -86,7 +86,7 @@ musixmatch:
     ```
 4.  此时程序已在前台开始运行。你可以通过查看日志来了解其工作状态:
     ```shell
-    tail -f logs/go_lastfm-scrobbler.log
+    tail -f .logs/go_lastfm-scrobbler.log
     ```
 
 **方式二: 作为后台服务运行 (推荐的日常使用方式)**
@@ -110,7 +110,7 @@ lastfm-scrobbler
 
 4.  **其他管理命令**:
     - 停止服务: `sh shell/script/stop_lastfm-scrobblers.sh`
-    - 查看日志: `tail -f logs/go_lastfm-scrobbler.log`
+    - 查看日志: `tail -f .logs/go_lastfm-scrobbler.log`
 
 ## 4. 项目结构解析
 

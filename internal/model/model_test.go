@@ -11,15 +11,16 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
-	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
+	database "github.com/vincenty1ung/lastfm-scrobbler/core/db"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
+	telemetry2 "github.com/vincenty1ung/lastfm-scrobbler/core/telemetry"
 )
 
 func setupTestDB(t *testing.T) *gorm.DB {
 	// Create custom logger
-	logger := log.LogInit("./logs", "debug", make(<-chan struct{}))
+	logger := log.LogInit("./.logs", "debug", make(<-chan struct{}))
 
-	customLogger := NewCustomLogger(logger)
+	customLogger := database.NewCustomLogger(logger)
 	// Create a temporary in-memory database for testing
 	db, err := gorm.Open(
 		sqlite.Open(":memory:"), &gorm.Config{
@@ -41,11 +42,10 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 func TestTrackPlayRecordCRUD(t *testing.T) {
 	// Setup
-	db := setupTestDB(t)
-	GlobalDB = db
+	GlobalDB = setupTestDB(t)
 
 	ctx := context.Background()
-	if err := telemetry.Init(
+	if err := telemetry2.Init(
 		config.TelemetryConfig{
 			Name:           "test",
 			Endpoint:       "",
@@ -61,12 +61,12 @@ func TestTrackPlayRecordCRUD(t *testing.T) {
 		return
 	}
 	defer func(ctx context.Context) {
-		err := telemetry.Shutdown(ctx)
+		err := telemetry2.Shutdown(ctx)
 		if err != nil {
 		}
 	}(ctx)
 
-	ctx, span := telemetry.StartSpan(ctx, "TestTrackPlayRecordCRUD")
+	ctx, span := telemetry2.StartSpan(ctx, "TestTrackPlayRecordCRUD")
 	defer span.End()
 
 	// Test InsertTrackPlayRecord
@@ -83,7 +83,7 @@ func TestTrackPlayRecordCRUD(t *testing.T) {
 		Source:        "Audirvana",
 	}
 	err := InsertTrackPlayRecord(ctx, record)
-	log.Warn(ctx, "adding record", zap.String("TraceIDFromContext", telemetry.TraceIDFromContext(ctx)))
+	log.Warn(ctx, "adding record", zap.String("TraceIDFromContext", telemetry2.TraceIDFromContext(ctx)))
 	assert.NoError(t, err)
 	assert.NotZero(t, record.ID)
 
@@ -122,11 +122,10 @@ func TestTrackPlayRecordCRUD(t *testing.T) {
 
 func TestTrackPlayCountCRUD(t *testing.T) {
 	// Setup
-	db := setupTestDB(t)
-	GlobalDB = db
+	GlobalDB = setupTestDB(t)
 
 	ctx := context.Background()
-	if err := telemetry.Init(
+	if err := telemetry2.Init(
 		config.TelemetryConfig{
 			Name:           "test",
 			Endpoint:       "",
@@ -142,12 +141,12 @@ func TestTrackPlayCountCRUD(t *testing.T) {
 		return
 	}
 	defer func(ctx context.Context) {
-		err := telemetry.Shutdown(ctx)
+		err := telemetry2.Shutdown(ctx)
 		if err != nil {
 		}
 	}(ctx)
 
-	ctx, span := telemetry.StartSpan(ctx, "TestTrackPlayCountCRUD")
+	ctx, span := telemetry2.StartSpan(ctx, "TestTrackPlayCountCRUD")
 	defer span.End()
 
 	// Test IncrementTrackPlayCount

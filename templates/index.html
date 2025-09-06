@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐播放统计系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        /* Tab样式 */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            animation: fadeEffect 1s;
+        }
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        .tabcontent.active {
+            display: block;
+        }
+        /* 数据展示样式 */
+        .track-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .track-item:last-child {
+            border-bottom: none;
+        }
+        .track-info {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .play-count, .score {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .rank {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .pagination a:hover {
+            background-color: #2980b9;
+        }
+        .pagination .disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        /* 加载提示 */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        /* 错误提示 */
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #e74c3c;
+            background-color: #fadbd8;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 音乐播放统计系统</h1>
+        
+        <!-- Tab导航 -->
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'playCounts')">播放统计</button>
+            <button class="tablinks" onclick="openTab(event, 'recommendations')">音乐推荐</button>
+            <button class="tablinks" onclick="openTab(event, 'report')">偏好分析报告</button>
+        </div>
+        
+        <!-- 播放统计页面 -->
+        <div id="playCounts" class="tabcontent active">
+            <h2>曲目播放统计</h2>
+            <div id="playCountsContent">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+        
+        <!-- 音乐推荐页面 -->
+        <div id="recommendations" class="tabcontent">
+            <h2>音乐推荐</h2>
+            <div id="recommendationsContent">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+        
+        <!-- 偏好分析报告页面 -->
+        <div id="report" class="tabcontent">
+            <h2>音乐偏好分析报告</h2>
+            <div id="reportContent">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+            
+            // 首次点击时加载数据
+            if (tabName === 'playCounts' && document.getElementById(tabName).dataset.loaded !== 'true') {
+                loadPlayCounts();
+                document.getElementById(tabName).dataset.loaded = 'true';
+            } else if (tabName === 'recommendations' && document.getElementById(tabName).dataset.loaded !== 'true') {
+                loadRecommendations();
+                document.getElementById(tabName).dataset.loaded = 'true';
+            } else if (tabName === 'report' && document.getElementById(tabName).dataset.loaded !== 'true') {
+                loadReport();
+                document.getElementById(tabName).dataset.loaded = 'true';
+            }
+        }
+        
+        // 加载播放统计数据
+        function loadPlayCounts(limit = 10, offset = 0) {
+            const contentDiv = document.getElementById('playCountsContent');
+            contentDiv.innerHTML = '<div class="loading">加载中...</div>';
+            
+            fetch(`/api/track-play-counts?limit=${limit}&offset=${offset}&format=html`)
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+                });
+        }
+        
+        // 加载音乐推荐数据
+        function loadRecommendations() {
+            const contentDiv = document.getElementById('recommendationsContent');
+            contentDiv.innerHTML = '<div class="loading">加载中...</div>';
+            
+            fetch('/api/music-analysis/recommendations')
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+                });
+        }
+        
+        // 加载偏好分析报告数据
+        function loadReport() {
+            const contentDiv = document.getElementById('reportContent');
+            contentDiv.innerHTML = '<div class="loading">加载中...</div>';
+            
+            fetch('/api/music-analysis/report')
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+                });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 默认加载第一个tab的数据
+            loadPlayCounts();
+            document.getElementById('playCounts').dataset.loaded = 'true';
+        });
+    </script>
+</body>
+</html>

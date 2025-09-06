@@ -1,4 +1,4 @@
-package model
+package db
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	oteltrace "go.opentelemetry.io/otel/trace"
 
-	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/telemetry"
 )
 
 const (

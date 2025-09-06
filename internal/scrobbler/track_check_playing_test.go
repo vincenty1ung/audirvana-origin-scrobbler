@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vincenty1ung/lastfm-scrobbler/audirvana"
 	"github.com/vincenty1ung/lastfm-scrobbler/common"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/audirvana"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/lastfm"
 )
 
 // mockLastfm a mock implementation of the Last.fm API for testing.
@@ -15,13 +16,13 @@ type mockLastfm struct {
 	lastTrack        string
 }
 
-func (m *mockLastfm) UpdateNowPlaying(req *TrackUpdateNowPlayingReq) error {
+func (m *mockLastfm) UpdateNowPlaying(req *lastfm.TrackUpdateNowPlayingReq) error {
 	m.nowPlayingCalled = true
 	m.lastTrack = req.Track
 	return nil
 }
 
-func (m *mockLastfm) Scrobble(req *PushTrackScrobbleReq) error {
+func (m *mockLastfm) Scrobble(req *lastfm.PushTrackScrobbleReq) error {
 	m.scrobbleCalled = true
 	m.lastTrack = req.Track
 	return nil
@@ -51,22 +52,26 @@ func processAudirvanaState(
 			delete(scrobbledTracks, k)
 		}
 
-		lastfm.UpdateNowPlaying(&TrackUpdateNowPlayingReq{
-			Artist: trackInfo.Artist,
-			Track:  trackInfo.Title,
-			Album:  trackInfo.Album,
-		})
+		lastfm.UpdateNowPlaying(
+			&lastfm.TrackUpdateNowPlayingReq{
+				Artist: trackInfo.Artist,
+				Track:  trackInfo.Title,
+				Album:  trackInfo.Album,
+			},
+		)
 	}
 
 	// Scrobble logic
 	hasBeenScrobbled := scrobbledTracks[currentTrackKey]
 	if !hasBeenScrobbled && (trackInfo.Position/float64(trackInfo.Duration)) > percentScrobble {
-		lastfm.Scrobble(&PushTrackScrobbleReq{
-			Artist:    trackInfo.Artist,
-			Track:     trackInfo.Title,
-			Album:     trackInfo.Album,
-			Timestamp: time.Now().Unix(),
-		})
+		lastfm.Scrobble(
+			&lastfm.PushTrackScrobbleReq{
+				Artist:    trackInfo.Artist,
+				Track:     trackInfo.Title,
+				Album:     trackInfo.Album,
+				Timestamp: time.Now().Unix(),
+			},
+		)
 		scrobbledTracks[currentTrackKey] = true
 	}
 }
@@ -171,27 +176,31 @@ func TestProcessAudirvanaState(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Setup
-			mockAPI := &mockLastfm{}
-			previousTrack := tt.initialPreviousTrack
-			scrobbledTracks := tt.initialScrobbledTracks
+		t.Run(
+			tt.name, func(t *testing.T) {
+				// Setup
+				mockAPI := &mockLastfm{}
+				previousTrack := tt.initialPreviousTrack
+				scrobbledTracks := tt.initialScrobbledTracks
 
-			// Execute
-			processAudirvanaState(mockAPI, tt.trackInfo, tt.playerState, &previousTrack, scrobbledTracks)
+				// Execute
+				processAudirvanaState(mockAPI, tt.trackInfo, tt.playerState, &previousTrack, scrobbledTracks)
 
-			// Assert
-			if mockAPI.nowPlayingCalled != tt.expectNowPlaying {
-				t.Errorf("Expected nowPlayingCalled to be %v, but got %v", tt.expectNowPlaying, mockAPI.nowPlayingCalled)
-			}
+				// Assert
+				if mockAPI.nowPlayingCalled != tt.expectNowPlaying {
+					t.Errorf(
+						"Expected nowPlayingCalled to be %v, but got %v", tt.expectNowPlaying, mockAPI.nowPlayingCalled,
+					)
+				}
 
-			if mockAPI.scrobbleCalled != tt.expectScrobble {
-				t.Errorf("Expected scrobbleCalled to be %v, but got %v", tt.expectScrobble, mockAPI.scrobbleCalled)
-			}
+				if mockAPI.scrobbleCalled != tt.expectScrobble {
+					t.Errorf("Expected scrobbleCalled to be %v, but got %v", tt.expectScrobble, mockAPI.scrobbleCalled)
+				}
 
-			if (tt.expectNowPlaying || tt.expectScrobble) && mockAPI.lastTrack != tt.expectedTrack {
-				t.Errorf("Expected track to be '%s', but got '%s'", tt.expectedTrack, mockAPI.lastTrack)
-			}
-		})
+				if (tt.expectNowPlaying || tt.expectScrobble) && mockAPI.lastTrack != tt.expectedTrack {
+					t.Errorf("Expected track to be '%s', but got '%s'", tt.expectedTrack, mockAPI.lastTrack)
+				}
+			},
+		)
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
 
 func init() {

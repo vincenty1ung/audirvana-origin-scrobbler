@@ -8,11 +8,11 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/telemetry"
+	telemetry2 "github.com/vincenty1ung/lastfm-scrobbler/core/telemetry"
 )
 
 func TInit() {
-	_ = LogInit("./logs", "info", make(<-chan struct{}))
+	_ = LogInit("./.logs", "info", make(<-chan struct{}))
 }
 
 func TestLogInit(t *testing.T) {
@@ -29,7 +29,7 @@ func TestLogInit(t *testing.T) {
 
 func TestTraceLogging(t *testing.T) {
 	TInit()
-	if err := telemetry.Init(
+	if err := telemetry2.Init(
 		config.TelemetryConfig{
 			Name:           "test",
 			Endpoint:       "",
@@ -43,11 +43,11 @@ func TestTraceLogging(t *testing.T) {
 	); err != nil {
 		t.Fatalf("failed to initialize telemetry: %v", err)
 	}
-	defer telemetry.Shutdown(context.Background())
+	defer telemetry2.Shutdown(context.Background())
 
 	// Create a context with trace
 	ctx := context.Background()
-	ctx, span := telemetry.StartSpan(ctx, "test-span")
+	ctx, span := telemetry2.StartSpan(ctx, "test-span")
 	defer span.End()
 
 	// Test logging with trace context
@@ -55,10 +55,10 @@ func TestTraceLogging(t *testing.T) {
 
 	Debug(
 		ctx, "debug", zap.String("time", time.Now().Format("2006-01-02 15:04:05")),
-		zap.String("TraceIDFromContext", telemetry.TraceIDFromContext(ctx)),
+		zap.String("TraceIDFromContext", telemetry2.TraceIDFromContext(ctx)),
 	)
 	Warn(
 		ctx, "warn", zap.String("time", time.Now().Format("2006-01-02 15:04:05")),
-		zap.String("SpanIDFromContext", telemetry.SpanIDFromContext(ctx)),
+		zap.String("SpanIDFromContext", telemetry2.SpanIDFromContext(ctx)),
 	)
 }

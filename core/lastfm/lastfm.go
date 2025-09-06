@@ -1,4 +1,4 @@
-package scrobbler
+package lastfm
 
 import (
 	"bufio"
@@ -12,12 +12,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/common"
-	alog "github.com/vincenty1ung/lastfm-scrobbler/log"
+	alog "github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
 
 var (
-	lastfmApi *lastfm.Api
+	lastfmApi = new(Api)
 )
+
+type Api struct {
+	*lastfm.Api
+}
 
 type (
 	Struct2Map interface {
@@ -126,7 +130,7 @@ func init() {
 func InitLastfmApi(
 	ctx context.Context, apiKey, apiSecret, userLoginToken string, isMobile bool, userUsername, userPassword string,
 ) {
-	lastfmApi = lastfm.New(apiKey, apiSecret)
+	lastfmApi.Api = lastfm.New(apiKey, apiSecret)
 	if isMobile {
 		err := lastfmApi.Login(userUsername, userPassword)
 		if err != nil {

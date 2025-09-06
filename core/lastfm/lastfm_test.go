@@ -1,4 +1,4 @@
-package scrobbler
+package lastfm
 
 import (
 	"context"
@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/config"
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
 
 func init() {
 	c := make(chan struct{})
 	config.InitConfig("../config/config.yaml")
 	_ = log.LogInit(config.ConfigObj.Log.Path, config.ConfigObj.Log.Level, c)
-	InitLastfmApi(context.Background(),
+	InitLastfmApi(
+		context.Background(),
 		config.ConfigObj.Lastfm.ApiKey, config.ConfigObj.Lastfm.SharedSecret, "", true,
 		config.ConfigObj.Lastfm.UserUsername, config.ConfigObj.Lastfm.UserPassword,
 	)
@@ -30,7 +31,8 @@ func TestPushTrackScrobble(t *testing.T) {
 	if unix != unix2 {
 		fmt.Println(unix, unix2)
 	}
-	res, err := PushTrackScrobble(context.Background(),
+	res, err := PushTrackScrobble(
+		context.Background(),
 		&PushTrackScrobbleReq{
 			base:   base{},
 			Artist: "声音玩具",

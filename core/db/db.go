@@ -1,4 +1,4 @@
-package model
+package db
 
 import (
 	"context"
@@ -6,18 +6,10 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/vincenty1ung/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
-
-var GlobalDB *gorm.DB
-
-func GetDB() *gorm.DB {
-	return GlobalDB
-}
 
 // customLogger is a custom logger for GORM that uses zap and OpenTelemetry
 type customLogger struct {
@@ -81,7 +73,7 @@ func (l *customLogger) Trace(
 		attribute.String("elapsed", elapsed.String()),
 	)
 
-	// Define slow query threshold (e.g., 200ms)
+	// Define a slow query threshold (e.g., 200ms)
 	slowThreshold := 200 * time.Millisecond
 
 	switch {
@@ -114,35 +106,4 @@ func (l *customLogger) Trace(
 			zap.Duration("elapsed", elapsed),
 		)
 	}
-}
-
-func InitDB(dataSourceName string, l *zap.Logger) error {
-	var err error
-
-	// Create custom logger with OpenTelemetry
-	customLogger := NewCustomLogger(l)
-
-	// Open database with custom logger
-	GlobalDB, err = gorm.Open(
-		sqlite.Open(dataSourceName), &gorm.Config{
-			Logger: customLogger,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	// Auto migrate the schema for TrackPlayRecord
-	err = GlobalDB.AutoMigrate(&TrackPlayRecord{})
-	if err != nil {
-		return err
-	}
-
-	// Auto migrate the schema for TrackPlayCount
-	err = GlobalDB.AutoMigrate(&TrackPlayCount{})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

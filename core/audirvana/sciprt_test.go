@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"testing"
 
-	alog "github.com/vincenty1ung/lastfm-scrobbler/log"
 	"go.uber.org/zap"
 
 	"github.com/vincenty1ung/lastfm-scrobbler/common"
+	alog "github.com/vincenty1ung/lastfm-scrobbler/core/log"
 )
 
 func init() {
-	_ = alog.LogInit("./logs", "info", make(<-chan struct{}))
+	_ = alog.LogInit("./.logs", "info", make(<-chan struct{}))
 }
 
 func TestAudirvana(t *testing.T) {

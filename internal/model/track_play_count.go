@@ -110,24 +110,24 @@ func GetAllTrackPlayCounts(ctx context.Context) ([]*TrackPlayCount, error) {
 	var allTracks []*TrackPlayCount
 	pageSize := 100
 	offset := 0
-	
+
 	for {
 		var tracks []*TrackPlayCount
 		err := GetDB().WithContext(ctx).Order("play_count DESC").Limit(pageSize).Offset(offset).Find(&tracks).Error
 		if err != nil {
 			return nil, err
 		}
-		
+
 		allTracks = append(allTracks, tracks...)
-		
+
 		// 如果返回的记录数少于pageSize，说明已经获取完所有记录
 		if len(tracks) < pageSize {
 			break
 		}
-		
+
 		offset += pageSize
 	}
-	
+
 	return allTracks, nil
 }
 

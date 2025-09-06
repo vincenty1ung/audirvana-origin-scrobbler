@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
 	"github.com/vincenty1ung/lastfm-scrobbler/memory"
 )
 
@@ -22,7 +23,10 @@ func NewMemoryToolCommand() *cobra.Command {
 		RunE:  createFeature,
 	}
 
-	createCmd.Flags().StringP("content", "c", "# {feature_name} 特性清单\n\n## 特性概述\n\n## 功能要点\n\n## 实现细节\n\n## 扩展性考虑", "Template content for the feature manifest")
+	createCmd.Flags().StringP(
+		"content", "c", "# {feature_name} 特性清单\n\n## 特性概述\n\n## 功能要点\n\n## 实现细节\n\n## 扩展性考虑",
+		"Template content for the feature manifest",
+	)
 
 	cmd.AddCommand(createCmd)
 	return cmd

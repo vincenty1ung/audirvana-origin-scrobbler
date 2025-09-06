@@ -9,9 +9,9 @@ import (
 
 	"go.uber.org/zap"
 
-	alog "github.com/vincenty1ung/lastfm-scrobbler/log"
+	"github.com/vincenty1ung/lastfm-scrobbler/core/applesciprt"
+	alog "github.com/vincenty1ung/lastfm-scrobbler/core/log"
 
-	"github.com/vincenty1ung/lastfm-scrobbler/applesciprt"
 	"github.com/vincenty1ung/lastfm-scrobbler/common"
 )
 

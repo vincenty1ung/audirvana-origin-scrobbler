@@ -20,7 +20,7 @@ lastfm-scrobbler
 vim config/config.yaml
 go build
 ./lastfm-scrobbler
-tail -f logs/go_lastfm-scrobbler.log
+tail -f .logs/go_lastfm-scrobbler.log
 ```
 
 ### Launch
