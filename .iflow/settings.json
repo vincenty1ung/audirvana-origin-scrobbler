@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mcp-server-sqlite": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "iflow-mcp_mcp-server-sqlite",
+        "mcp-server-sqlite",
+        "--db-path",
+        "./storage/tracks.db"
+      ]
+    }
+  }
+}
